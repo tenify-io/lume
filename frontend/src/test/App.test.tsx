@@ -39,17 +39,10 @@ beforeEach(() => {
 });
 
 describe("App", () => {
-  it("renders the header with app name", async () => {
+  it("renders the header with app logo", async () => {
     render(<App />);
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Lume" })).toBeInTheDocument();
-    });
-  });
-
-  it("renders the subtitle", async () => {
-    render(<App />);
-    await waitFor(() => {
-      expect(screen.getByText("Kubernetes Dashboard")).toBeInTheDocument();
+      expect(screen.getByAltText("Lume")).toBeInTheDocument();
     });
   });
 
