@@ -57,6 +57,11 @@ jobs:
         if: matrix.platform == 'darwin'
         run: wails build -platform darwin/universal
 
+      - name: Install NSIS
+        if: matrix.platform == 'windows'
+        shell: bash
+        run: choco install nsis -y
+
       - name: Build (Windows)
         if: matrix.platform == 'windows'
         run: wails build -nsis
