@@ -81,8 +81,11 @@ jobs:
 
       - name: Package (macOS)
         if: matrix.platform == 'darwin'
-        working-directory: build/bin
-        run: ditto -c -k --sequesterRsrc lume.app ../../lume-darwin-universal.zip
+        run: |
+          pkgbuild \
+            --component build/bin/lume.app \
+            --install-location /Applications \
+            lume-darwin-universal.pkg
 
       - name: Package (Windows)
         if: matrix.platform == 'windows'
