@@ -1,36 +1,38 @@
 version: "2"
 
+formatters:
+  enable:
+    - gofmt
+
 linters:
   enable:
     - errcheck
     - govet
     - staticcheck
     - unused
-    - gosimple
     - ineffassign
     - gocritic
     - revive
     - misspell
     - unconvert
     - unparam
-    - gofmt
 
-linters-settings:
-  revive:
-    rules:
-      - name: exported
-        arguments:
-          - disableStutteringCheck
-      - name: blank-imports
-      - name: unreachable-code
-      - name: dot-imports
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - style
+  settings:
+    revive:
+      rules:
+        - name: exported
+          arguments:
+            - disableStutteringCheck
+        - name: blank-imports
+        - name: unreachable-code
+        - name: dot-imports
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - style
 
-issues:
-  exclude-dirs:
-    - frontend
-    - build
-    - node_modules
+  exclusions:
+    paths:
+      - frontend
+      - build
+      - node_modules

@@ -15,12 +15,12 @@ func main() {
 	app := NewApp()
 
 	err := wails.Run(&options.App{
-		Title:            "Lume - Kubernetes Dashboard",
-		Width:            1280,
-		Height:           800,
-		MinWidth:         800,
-		MinHeight:        600,
-		DisableResize:    false,
+		Title:         "Lume - Kubernetes Dashboard",
+		Width:         1280,
+		Height:        800,
+		MinWidth:      800,
+		MinHeight:     600,
+		DisableResize: false,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
