@@ -77,6 +77,7 @@ jobs:
           cp build/linux/lume.desktop lume-linux-amd64/
           cp build/appicon.png lume-linux-amd64/lume.png
           tar -czf lume-linux-amd64.tar.gz lume-linux-amd64
+          rm -rf lume-linux-amd64
 
       - name: Package (macOS)
         if: matrix.platform == 'darwin'
