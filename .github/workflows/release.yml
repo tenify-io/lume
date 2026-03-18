@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -60,7 +61,9 @@ jobs:
       - name: Install NSIS
         if: matrix.platform == 'windows'
         shell: bash
-        run: choco install nsis -y
+        run: |
+          choco install nsis -y
+          echo "C:\Program Files (x86)\NSIS" >> "$GITHUB_PATH"
 
       - name: Build (Windows)
         if: matrix.platform == 'windows'
@@ -93,6 +96,7 @@ jobs:
 
   release:
     needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
