@@ -1,0 +1,109 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  NODE_OPTIONS: "--max-old-space-size=4096"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux
+            os: ubuntu-latest
+          - platform: windows
+            os: windows-latest
+          - platform: darwin
+            os: macos-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Linux dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev pkg-config
+
+      - name: Install Wails CLI
+        shell: bash
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Build (Linux)
+        if: matrix.platform == 'linux'
+        run: wails build -tags webkit2_41
+
+      - name: Build (macOS)
+        if: matrix.platform == 'darwin'
+        run: wails build -platform darwin/universal
+
+      - name: Build (Windows)
+        if: matrix.platform == 'windows'
+        run: wails build -nsis
+
+      - name: Package (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          mkdir -p lume-linux-amd64
+          cp build/bin/lume lume-linux-amd64/
+          cp build/linux/lume.desktop lume-linux-amd64/
+          cp build/appicon.png lume-linux-amd64/lume.png
+          tar -czf lume-linux-amd64.tar.gz lume-linux-amd64
+
+      - name: Package (macOS)
+        if: matrix.platform == 'darwin'
+        working-directory: build/bin
+        run: ditto -c -k --sequesterRsrc lume.app ../../lume-darwin-universal.zip
+
+      - name: Package (Windows)
+        if: matrix.platform == 'windows'
+        shell: bash
+        run: cp build/bin/lume-amd64-installer.exe lume-windows-amd64-installer.exe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: lume-*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --title "Lume ${{ github.ref_name }}" \
+            --draft \
+            --generate-notes \
+            artifacts/*
