@@ -1,0 +1,32 @@
+# Build outputs
+build/bin
+lume
+tenify-k8s
+
+# Dependencies
+node_modules
+
+# Frontend build
+frontend/dist
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment / secrets
+.env
+.env.*
+
+# Go
+*.exe
+*.test
+*.out
+
+# Wails dev
+frontend/package.json.md5

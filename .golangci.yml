@@ -1,0 +1,36 @@
+linters:
+  disable:
+    - typecheck
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - unused
+    - gosimple
+    - ineffassign
+    - gocritic
+    - revive
+    - misspell
+    - unconvert
+    - unparam
+    - gofmt
+
+linters-settings:
+  revive:
+    rules:
+      - name: exported
+        arguments:
+          - disableStutteringCheck
+      - name: blank-imports
+      - name: unreachable-code
+      - name: dot-imports
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - style
+
+issues:
+  exclude-dirs:
+    - frontend
+    - build
+    - node_modules
