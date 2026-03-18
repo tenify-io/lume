@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Lume
+Exec=lume
+Icon=lume
+Type=Application
+Categories=Development;Utility;
+Comment=Kubernetes dashboard
