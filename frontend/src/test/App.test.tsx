@@ -22,6 +22,9 @@ const mockBindings = vi.hoisted(() => ({
   GetAllPreferences: vi.fn().mockResolvedValue({}),
   WatchPods: vi.fn().mockResolvedValue(undefined),
   UnwatchAll: vi.fn().mockResolvedValue(undefined),
+  GetClusterHealth: vi.fn().mockResolvedValue({ connected: true, latencyMs: 10, serverVersion: "v1.29.0", error: "" }),
+  StartHealthCheck: vi.fn().mockResolvedValue(undefined),
+  StopHealthCheck: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("../../wailsjs/go/main/App", () => mockBindings);
@@ -53,10 +56,11 @@ beforeEach(() => {
 });
 
 describe("App", () => {
-  it("renders the header with app logo", async () => {
+  it("renders the top bar with navigation arrows", async () => {
     render(<App />);
     await waitFor(() => {
-      expect(screen.getByAltText("Lume")).toBeInTheDocument();
+      // TopBar renders back/forward arrows and a tab
+      expect(screen.getByText("Clusters")).toBeInTheDocument();
     });
   });
 
@@ -90,9 +94,9 @@ describe("App", () => {
     await waitFor(() => {
       expect(mockBindings.ConnectToContext).toHaveBeenCalledWith("dev-local");
     });
-    // Should show the sidebar with Pods/Nodes navigation
+    // Should show the sidebar with Pods/Nodes navigation (also appears in tab)
     await waitFor(() => {
-      expect(screen.getByText("Pods")).toBeInTheDocument();
+      expect(screen.getAllByText("Pods").length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText("Nodes")).toBeInTheDocument();
     });
   });
@@ -108,7 +112,7 @@ describe("App", () => {
     expect(mockBindings.ConnectToContext).not.toHaveBeenCalled();
   });
 
-  it("shows cluster name in header when connected", async () => {
+  it("shows cluster name in status bar when connected", async () => {
     mockBindings.GetContexts.mockResolvedValue(sampleContexts);
     mockBindings.GetPreference.mockResolvedValue("dev-local");
     mockBindings.GetNamespaces.mockResolvedValue(["default"]);
@@ -116,13 +120,11 @@ describe("App", () => {
 
     render(<App />);
     await waitFor(() => {
-      const header = document.querySelector("header");
-      expect(header).toHaveTextContent("dev-local");
-      expect(screen.getByText("Change Cluster")).toBeInTheDocument();
+      expect(screen.getByText("dev-local")).toBeInTheDocument();
     });
   });
 
-  it("shows alias in header when alias is set", async () => {
+  it("shows alias in status bar when alias is set", async () => {
     mockBindings.GetContexts.mockResolvedValue(sampleContexts);
     mockBindings.GetContextAliases.mockResolvedValue({
       "arn:aws:eks:us-east-1:123:cluster/prod": "Production",
@@ -133,28 +135,7 @@ describe("App", () => {
 
     render(<App />);
     await waitFor(() => {
-      const header = document.querySelector("header");
-      expect(header).toHaveTextContent("Production");
-    });
-  });
-
-  it("Change Cluster button returns to selection view", async () => {
-    mockBindings.GetContexts.mockResolvedValue(sampleContexts);
-    mockBindings.GetPreference.mockResolvedValue("dev-local");
-    mockBindings.GetNamespaces.mockResolvedValue(["default"]);
-    mockBindings.GetPods.mockResolvedValue([]);
-
-    render(<App />);
-
-    await waitFor(() => {
-      expect(screen.getByText("Change Cluster")).toBeInTheDocument();
-    });
-
-    const user = userEvent.setup();
-    await user.click(screen.getByText("Change Cluster"));
-
-    await waitFor(() => {
-      expect(screen.getByText("Select a Cluster")).toBeInTheDocument();
+      expect(screen.getByText("Production")).toBeInTheDocument();
     });
   });
 

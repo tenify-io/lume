@@ -8,11 +8,19 @@ export function DeletePreference(arg1:string):Promise<void>;
 
 export function GetAllPreferences():Promise<Record<string, any>>;
 
+export function GetClusterHealth():Promise<kube.ClusterHealth>;
+
 export function GetContextAliases():Promise<Record<string, string>>;
 
 export function GetContexts():Promise<Array<kube.Context>>;
 
 export function GetCurrentContext():Promise<string>;
+
+export function GetDeploymentDetail(arg1:string,arg2:string):Promise<kube.DeploymentDetail>;
+
+export function GetDeploymentEvents(arg1:string,arg2:string):Promise<Array<kube.EventInfo>>;
+
+export function GetDeployments(arg1:string):Promise<Array<kube.DeploymentInfo>>;
 
 export function GetNamespaces():Promise<Array<string>>;
 
@@ -33,6 +41,10 @@ export function GetPreference(arg1:string):Promise<any>;
 export function SetContextAlias(arg1:string,arg2:string):Promise<void>;
 
 export function SetPreference(arg1:string,arg2:any):Promise<void>;
+
+export function StartHealthCheck():Promise<void>;
+
+export function StopHealthCheck():Promise<void>;
 
 export function UnwatchAll():Promise<void>;
 

@@ -37,21 +37,21 @@ export function ConditionsTable({ conditions }: { conditions: Condition[] }) {
         <tbody>
           {conditions.map((c) => (
             <tr key={c.type}>
-              <td className="px-3 py-1.5 border-b border-zinc-900 font-medium">
+              <td className="px-3 py-1.5 border-b border-zinc-800/30 font-medium">
                 {c.type}
               </td>
               <td
-                className={`px-3 py-1.5 border-b border-zinc-900 font-semibold ${conditionStatusClass(c.status)}`}
+                className={`px-3 py-1.5 border-b border-zinc-800/30 font-semibold ${conditionStatusClass(c.status)}`}
               >
                 {c.status}
               </td>
-              <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-400 whitespace-nowrap">
+              <td className="px-3 py-1.5 border-b border-zinc-800/30 text-zinc-400 whitespace-nowrap">
                 {c.lastTransitionTime}
               </td>
-              <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-400">
+              <td className="px-3 py-1.5 border-b border-zinc-800/30 text-zinc-400">
                 {c.reason}
               </td>
-              <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-400">
+              <td className="px-3 py-1.5 border-b border-zinc-800/30 text-zinc-400">
                 {c.message}
               </td>
             </tr>

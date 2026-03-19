@@ -30,15 +30,7 @@ export function NodeListView() {
   return (
     <>
       {/* Toolbar */}
-      <div className="flex flex-wrap gap-4 items-center px-6 py-3 bg-zinc-900">
-        <span className="flex items-center gap-1.5 text-xs text-emerald-400">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-          </span>
-          Live
-        </span>
-
+      <div className="flex flex-wrap gap-4 items-center px-6 py-3 bg-zinc-900 border-b border-zinc-800/50">
         <div className="ml-auto">
           <Input
             type="text"
@@ -85,33 +77,33 @@ export function NodeListView() {
             {filteredNodes.map((node) => (
               <tr
                 key={node.name}
-                className="cursor-pointer transition-colors hover:bg-zinc-900"
+                className="cursor-pointer transition-colors hover:bg-zinc-900/70"
                 onClick={() =>
                   navigate({ page: "node-detail", name: node.name })
                 }
               >
-                <td className="px-3 py-2 border-b border-zinc-900 font-semibold text-zinc-200 whitespace-nowrap">
+                <td className="px-3 py-2 border-b border-zinc-800/30 font-semibold text-zinc-200 whitespace-nowrap">
                   {node.name}
                 </td>
-                <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                <td className="px-3 py-2 border-b border-zinc-800/30 whitespace-nowrap">
                   <StatusBadge status={node.status} />
                 </td>
-                <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                <td className="px-3 py-2 border-b border-zinc-800/30 whitespace-nowrap">
                   {node.roles}
                 </td>
-                <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                <td className="px-3 py-2 border-b border-zinc-800/30 whitespace-nowrap">
                   {node.age}
                 </td>
-                <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                <td className="px-3 py-2 border-b border-zinc-800/30 whitespace-nowrap">
                   {node.kubeletVersion}
                 </td>
-                <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap font-mono text-xs">
+                <td className="px-3 py-2 border-b border-zinc-800/30 whitespace-nowrap font-mono text-xs">
                   {node.internalIP}
                 </td>
-                <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                <td className="px-3 py-2 border-b border-zinc-800/30 whitespace-nowrap">
                   {node.osImage}
                 </td>
-                <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap text-xs">
+                <td className="px-3 py-2 border-b border-zinc-800/30 whitespace-nowrap text-xs">
                   {node.containerRuntime}
                 </td>
               </tr>
@@ -121,7 +113,7 @@ export function NodeListView() {
       </div>
 
       {/* Status bar */}
-      <div className="px-6 py-1.5 text-xs text-zinc-600 bg-zinc-900 shrink-0">
+      <div className="px-6 py-1.5 text-xs text-zinc-600 bg-[#111113] border-t border-zinc-800/50 shrink-0">
         {loading ? "Loading..." : `${filteredNodes.length} node(s)`}
         {search && ` matching "${search}"`}
       </div>

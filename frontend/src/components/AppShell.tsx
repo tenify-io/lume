@@ -1,28 +1,16 @@
-import lumeLogo from "@/assets/images/lume-logo-light.svg";
 import { Button } from "@/components/ui/button";
 import { useCluster } from "@/contexts/ClusterContext";
 import { Sidebar } from "@/components/Sidebar";
+import { StatusBar } from "@/components/StatusBar";
+import { TopBar } from "@/components/TopBar";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { currentContext, aliases, error, setError, changeCluster } =
-    useCluster();
-
-  const clusterDisplayName = aliases[currentContext] || currentContext;
+  const { error, setError } = useCluster();
 
   return (
-    <div className="flex flex-col h-screen bg-zinc-950 text-zinc-200 font-sans text-[13px]">
-      {/* Header */}
-      <header className="flex items-center gap-3 px-6 py-4 bg-zinc-900">
-        <img src={lumeLogo} alt="Lume" className="h-8" />
-        <div className="ml-auto flex items-center gap-2">
-          <span className="text-[13px] text-zinc-300 font-medium">
-            {clusterDisplayName}
-          </span>
-          <Button variant="ghost" size="sm" onClick={changeCluster}>
-            Change Cluster
-          </Button>
-        </div>
-      </header>
+    <div className="flex flex-col h-screen bg-zinc-900 text-zinc-200 font-sans text-[13px]">
+      {/* Top navigation bar */}
+      <TopBar />
 
       {/* Error banner */}
       {error && (
@@ -46,6 +34,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </div>
+
+      {/* Global status bar */}
+      <StatusBar />
     </div>
   );
 }

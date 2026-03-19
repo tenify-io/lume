@@ -17,6 +17,15 @@ func newTestApp(t *testing.T) *App {
 	return &App{prefs: p}
 }
 
+func TestGetClusterHealthNotConnected(t *testing.T) {
+	app := newTestApp(t)
+
+	_, err := app.GetClusterHealth()
+	if err == nil {
+		t.Fatal("expected error when not connected, got nil")
+	}
+}
+
 func TestSetContextAlias(t *testing.T) {
 	app := newTestApp(t)
 

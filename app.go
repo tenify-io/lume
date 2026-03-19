@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/tenify-io/lume/pkg/kube"
 	"github.com/tenify-io/lume/pkg/preferences"
@@ -11,10 +12,11 @@ import (
 
 // App struct
 type App struct {
-	ctx     context.Context
-	client  *kube.Client
-	prefs   *preferences.Preferences
-	watcher *kube.Watcher
+	ctx          context.Context
+	client       *kube.Client
+	prefs        *preferences.Preferences
+	watcher      *kube.Watcher
+	healthCancel context.CancelFunc
 }
 
 // NewApp creates a new App application struct
@@ -30,6 +32,11 @@ func NewApp() *App {
 // startup is called when the app starts.
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+}
+
+// shutdown is called when the app is closing.
+func (a *App) shutdown(_ context.Context) {
+	a.StopHealthCheck()
 }
 
 // GetContexts returns all available kubeconfig contexts.
@@ -48,6 +55,7 @@ func (a *App) ConnectToContext(contextName string) error {
 		a.watcher.Stop()
 		a.watcher = nil
 	}
+	a.StopHealthCheck()
 
 	client, err := kube.Connect(contextName)
 	if err != nil {
@@ -59,7 +67,53 @@ func (a *App) ConnectToContext(contextName string) error {
 		wailsrt.EventsEmit(a.ctx, eventName, data...)
 	})
 
+	a.StartHealthCheck()
+
 	return nil
+}
+
+// GetClusterHealth returns the current health of the connected cluster.
+func (a *App) GetClusterHealth() (kube.ClusterHealth, error) {
+	if a.client == nil {
+		return kube.ClusterHealth{}, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetClusterHealth(a.ctx), nil
+}
+
+// StartHealthCheck begins periodic health checks every 30 seconds,
+// emitting "cluster:health" events to the frontend.
+func (a *App) StartHealthCheck() {
+	a.StopHealthCheck()
+
+	ctx, cancel := context.WithCancel(a.ctx)
+	a.healthCancel = cancel
+
+	go func() {
+		emit := func() {
+			health := a.client.GetClusterHealth(ctx)
+			wailsrt.EventsEmit(a.ctx, "cluster:health", health)
+		}
+		emit()
+
+		ticker := time.NewTicker(30 * time.Second)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				emit()
+			}
+		}
+	}()
+}
+
+// StopHealthCheck stops the periodic health check.
+func (a *App) StopHealthCheck() {
+	if a.healthCancel != nil {
+		a.healthCancel()
+		a.healthCancel = nil
+	}
 }
 
 // GetNamespaces returns all namespaces in the connected cluster.
