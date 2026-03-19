@@ -30,6 +30,18 @@ export function GetCurrentContext() {
   return window['go']['main']['App']['GetCurrentContext']();
 }
 
+export function GetDaemonSetDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetDaemonSetDetail'](arg1, arg2);
+}
+
+export function GetDaemonSetEvents(arg1, arg2) {
+  return window['go']['main']['App']['GetDaemonSetEvents'](arg1, arg2);
+}
+
+export function GetDaemonSets(arg1) {
+  return window['go']['main']['App']['GetDaemonSets'](arg1);
+}
+
 export function GetDeploymentDetail(arg1, arg2) {
   return window['go']['main']['App']['GetDeploymentDetail'](arg1, arg2);
 }

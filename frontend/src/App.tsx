@@ -11,6 +11,8 @@ import { DeploymentListView } from "@/components/deployments/DeploymentListView"
 import { DeploymentDetailView } from "@/components/deployments/DeploymentDetailView";
 import { StatefulSetListView } from "@/components/statefulsets/StatefulSetListView";
 import { StatefulSetDetailView } from "@/components/statefulsets/StatefulSetDetailView";
+import { DaemonSetListView } from "@/components/daemonsets/DaemonSetListView";
+import { DaemonSetDetailView } from "@/components/daemonsets/DaemonSetDetailView";
 
 function AppRouter() {
   const { route } = useNavigation();
@@ -60,6 +62,10 @@ function AppRouter() {
       {route.page === "statefulsets" && <StatefulSetListView />}
       {route.page === "statefulset-detail" && (
         <StatefulSetDetailView namespace={route.namespace} name={route.name} />
+      )}
+      {route.page === "daemonsets" && <DaemonSetListView />}
+      {route.page === "daemonset-detail" && (
+        <DaemonSetDetailView namespace={route.namespace} name={route.name} />
       )}
     </AppShell>
   );
