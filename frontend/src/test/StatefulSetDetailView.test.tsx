@@ -45,48 +45,50 @@ const sampleContexts = [
   { name: "dev-local", cluster: "dev-cluster", user: "developer" },
 ];
 
-const sampleDeployment = {
-  name: "web-app",
+const sampleStatefulSet = {
+  name: "mysql-primary",
   namespace: "default",
   uid: "abc-123-def",
   creationTimestamp: "2026-03-10 12:00:00 UTC",
-  labels: { app: "web", env: "prod" },
-  annotations: { "deployment.kubernetes.io/revision": "3" },
+  labels: { app: "mysql", env: "prod" },
+  annotations: { "app.kubernetes.io/version": "8.0" },
   ready: "3/3",
-  upToDate: 3,
-  available: 3,
+  currentReplicas: 3,
+  updatedReplicas: 3,
   age: "9d",
-  strategy: "RollingUpdate",
-  minReadySeconds: 10,
+  updateStrategy: "RollingUpdate",
+  partition: 0,
+  podManagementPolicy: "OrderedReady",
+  serviceName: "mysql",
   revisionHistoryLimit: 10,
-  selector: { app: "web" },
-  maxSurge: "25%",
-  maxUnavailable: "1",
-  conditions: [
+  minReadySeconds: 0,
+  selector: { app: "mysql" },
+  volumeClaimTemplates: [
     {
-      type: "Available",
-      status: "True",
-      lastTransitionTime: "2026-03-10 12:01:00 UTC",
-      reason: "MinimumReplicasAvailable",
-      message: "Deployment has minimum availability.",
-    },
-    {
-      type: "Progressing",
-      status: "True",
-      lastTransitionTime: "2026-03-10 12:01:00 UTC",
-      reason: "NewReplicaSetAvailable",
-      message: "ReplicaSet has successfully progressed.",
+      name: "data",
+      storageClass: "gp3",
+      accessModes: ["ReadWriteOnce"],
+      storage: "10Gi",
     },
   ],
-  images: ["nginx:1.25", "sidecar:latest"],
+  conditions: [
+    {
+      type: "Ready",
+      status: "True",
+      lastTransitionTime: "2026-03-10 12:01:00 UTC",
+      reason: "AllReplicasReady",
+      message: "All replicas are ready.",
+    },
+  ],
+  images: ["mysql:8.0", "exporter:latest"],
 };
 
 const sampleEvents = [
   {
     type: "Normal",
-    reason: "ScalingReplicaSet",
-    message: "Scaled up replica set web-app-abc123 to 3",
-    source: "deployment-controller",
+    reason: "SuccessfulCreate",
+    message: "create Pod mysql-primary-0 in StatefulSet mysql-primary successful",
+    source: "statefulset-controller",
     count: 1,
     firstTimestamp: "2026-03-10 12:00:00 UTC",
     lastTimestamp: "2026-03-10 12:00:00 UTC",
@@ -104,91 +106,88 @@ beforeEach(() => {
   mockBindings.GetNamespaces.mockResolvedValue(["default"]);
   mockBindings.GetPods.mockResolvedValue([]);
   mockBindings.GetNodes.mockResolvedValue([]);
-  mockBindings.GetDeployments.mockResolvedValue([
+  mockBindings.GetDeployments.mockResolvedValue([]);
+  mockBindings.GetStatefulSets.mockResolvedValue([
     {
-      name: "web-app",
+      name: "mysql-primary",
       namespace: "default",
       ready: "3/3",
-      upToDate: 3,
-      available: 3,
+      serviceName: "mysql",
       age: "9d",
-      strategy: "RollingUpdate",
-      images: ["nginx:1.25", "sidecar:latest"],
+      images: ["mysql:8.0", "exporter:latest"],
     },
   ]);
-  mockBindings.GetDeploymentDetail.mockResolvedValue(sampleDeployment);
-  mockBindings.GetDeploymentEvents.mockResolvedValue(sampleEvents);
+  mockBindings.GetStatefulSetDetail.mockResolvedValue(sampleStatefulSet);
+  mockBindings.GetStatefulSetEvents.mockResolvedValue(sampleEvents);
   mockBindings.SetPreference.mockResolvedValue(undefined);
   mockBindings.SetContextAlias.mockResolvedValue(undefined);
 });
 
-describe("DeploymentDetailView", () => {
-  it("shows deployment detail when clicking a deployment", async () => {
+describe("StatefulSetDetailView", () => {
+  it("shows statefulset detail when clicking a statefulset", async () => {
     render(<App />);
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("StatefulSets"));
 
     await waitFor(() => {
-      expect(screen.getByText("web-app")).toBeInTheDocument();
+      expect(screen.getByText("mysql-primary")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("web-app"));
+    await user.click(screen.getByText("mysql-primary"));
 
     await waitFor(() => {
-      expect(mockBindings.GetDeploymentDetail).toHaveBeenCalledWith(
+      expect(mockBindings.GetStatefulSetDetail).toHaveBeenCalledWith(
         "default",
-        "web-app",
+        "mysql-primary",
       );
     });
 
     await waitFor(() => {
       // Quick stats
       expect(screen.getByText("3/3")).toBeInTheDocument();
-      // Strategy
+      // Update strategy
       expect(screen.getByText("RollingUpdate")).toBeInTheDocument();
     });
   });
 
-  it("displays deployment conditions", async () => {
+  it("displays statefulset conditions", async () => {
     render(<App />);
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("StatefulSets"));
     await waitFor(() => {
-      expect(screen.getByText("web-app")).toBeInTheDocument();
+      expect(screen.getByText("mysql-primary")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("web-app"));
+    await user.click(screen.getByText("mysql-primary"));
 
     await waitFor(() => {
       expect(screen.getByText("Conditions")).toBeInTheDocument();
-      expect(
-        screen.getByText("MinimumReplicasAvailable"),
-      ).toBeInTheDocument();
+      expect(screen.getByText("AllReplicasReady")).toBeInTheDocument();
     });
   });
 
-  it("displays deployment events", async () => {
+  it("displays statefulset events", async () => {
     render(<App />);
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("StatefulSets"));
     await waitFor(() => {
-      expect(screen.getByText("web-app")).toBeInTheDocument();
+      expect(screen.getByText("mysql-primary")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("web-app"));
+    await user.click(screen.getByText("mysql-primary"));
 
     await waitFor(() => {
       expect(screen.getByText("Events (1)")).toBeInTheDocument();
-      expect(screen.getByText("ScalingReplicaSet")).toBeInTheDocument();
+      expect(screen.getByText("SuccessfulCreate")).toBeInTheDocument();
     });
   });
 
@@ -197,13 +196,13 @@ describe("DeploymentDetailView", () => {
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("StatefulSets"));
     await waitFor(() => {
-      expect(screen.getByText("web-app")).toBeInTheDocument();
+      expect(screen.getByText("mysql-primary")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("web-app"));
+    await user.click(screen.getByText("mysql-primary"));
 
     await waitFor(() => {
       expect(screen.getByText("Labels")).toBeInTheDocument();
@@ -216,41 +215,63 @@ describe("DeploymentDetailView", () => {
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("StatefulSets"));
     await waitFor(() => {
-      expect(screen.getByText("web-app")).toBeInTheDocument();
+      expect(screen.getByText("mysql-primary")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("web-app"));
+    await user.click(screen.getByText("mysql-primary"));
 
     await waitFor(() => {
       expect(screen.getByText("Images (2)")).toBeInTheDocument();
-      expect(screen.getByText("nginx:1.25")).toBeInTheDocument();
-      expect(screen.getByText("sidecar:latest")).toBeInTheDocument();
+      expect(screen.getByText("mysql:8.0")).toBeInTheDocument();
+      expect(screen.getByText("exporter:latest")).toBeInTheDocument();
     });
   });
 
-  it("shows error state when deployment fetch fails", async () => {
-    mockBindings.GetDeploymentDetail.mockRejectedValue(
-      new Error("deployment not found"),
+  it("displays volume claim templates section", async () => {
+    render(<App />);
+
+    const user = userEvent.setup();
+    await waitFor(() => {
+      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
+    });
+    await user.click(screen.getByText("StatefulSets"));
+    await waitFor(() => {
+      expect(screen.getByText("mysql-primary")).toBeInTheDocument();
+    });
+    await user.click(screen.getByText("mysql-primary"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Volume Claim Templates (1)"),
+      ).toBeInTheDocument();
+      expect(screen.getByText("gp3")).toBeInTheDocument();
+      expect(screen.getByText("10Gi")).toBeInTheDocument();
+    });
+  });
+
+  it("shows error state when statefulset fetch fails", async () => {
+    mockBindings.GetStatefulSetDetail.mockRejectedValue(
+      new Error("statefulset not found"),
     );
 
     render(<App />);
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("StatefulSets"));
     await waitFor(() => {
-      expect(screen.getByText("web-app")).toBeInTheDocument();
+      expect(screen.getByText("mysql-primary")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("web-app"));
+    await user.click(screen.getByText("mysql-primary"));
 
     await waitFor(() => {
       expect(
-        screen.getByText("Back to Deployments"),
+        screen.getByText("Back to StatefulSets"),
       ).toBeInTheDocument();
     });
   });

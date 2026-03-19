@@ -65,11 +65,9 @@ export function StatusBar() {
         ) : (
           <>
             <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <button className="flex items-center gap-1 hover:text-zinc-300 transition-colors">
-                  {clusterDisplayName}
-                  <ChevronDown size={10} />
-                </button>
+              <PopoverTrigger className="flex items-center gap-1 hover:text-zinc-300 transition-colors">
+                {clusterDisplayName}
+                <ChevronDown size={10} />
               </PopoverTrigger>
               <PopoverContent
                 side="top"

@@ -105,7 +105,7 @@ func (c *Client) GetNodeDetail(ctx context.Context, name string) (*NodeDetail, e
 		UID:               string(node.UID),
 		CreationTimestamp: node.CreationTimestamp.Format("2006-01-02 15:04:05 MST"),
 		Labels:            node.Labels,
-		Annotations:       node.Annotations,
+		Annotations:       FilterAnnotations(node.Annotations),
 		Status:            nodeStatus(node),
 		Roles:             nodeRoles(node),
 		Age:               age,

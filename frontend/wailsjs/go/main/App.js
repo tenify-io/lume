@@ -74,6 +74,18 @@ export function GetPreference(arg1) {
   return window['go']['main']['App']['GetPreference'](arg1);
 }
 
+export function GetStatefulSetDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetStatefulSetDetail'](arg1, arg2);
+}
+
+export function GetStatefulSetEvents(arg1, arg2) {
+  return window['go']['main']['App']['GetStatefulSetEvents'](arg1, arg2);
+}
+
+export function GetStatefulSets(arg1) {
+  return window['go']['main']['App']['GetStatefulSets'](arg1);
+}
+
 export function SetContextAlias(arg1, arg2) {
   return window['go']['main']['App']['SetContextAlias'](arg1, arg2);
 }

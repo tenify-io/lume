@@ -1,4 +1,4 @@
-import { Server, Box, Layers } from "lucide-react";
+import { Server, Box, Layers, Database } from "lucide-react";
 import { useNavigation, type Route } from "@/navigation";
 
 interface NavItem {
@@ -16,6 +16,7 @@ const categories: { label: string; items: NavItem[] }[] = [
     label: "Workloads",
     items: [
       { label: "Deployments", icon: Layers, page: "deployments" },
+      { label: "StatefulSets", icon: Database, page: "statefulsets" },
       { label: "Pods", icon: Box, page: "pods" },
     ],
   },
@@ -32,7 +33,9 @@ export function Sidebar() {
         ? "nodes"
         : route.page === "deployment-detail"
           ? "deployments"
-          : route.page;
+          : route.page === "statefulset-detail"
+            ? "statefulsets"
+            : route.page;
 
   return (
     <nav className="w-[180px] shrink-0 bg-zinc-950 border-r border-black/50 py-4 flex flex-col gap-5 overflow-y-auto">

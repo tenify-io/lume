@@ -640,6 +640,135 @@ export namespace kube {
 		    return a;
 		}
 	}
+	export class StatefulSetCondition {
+	    type: string;
+	    status: string;
+	    lastTransitionTime: string;
+	    reason: string;
+	    message: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new StatefulSetCondition(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.type = source["type"];
+	        this.status = source["status"];
+	        this.lastTransitionTime = source["lastTransitionTime"];
+	        this.reason = source["reason"];
+	        this.message = source["message"];
+	    }
+	}
+	export class VolumeClaimInfo {
+	    name: string;
+	    storageClass: string;
+	    accessModes: string[];
+	    storage: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new VolumeClaimInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.storageClass = source["storageClass"];
+	        this.accessModes = source["accessModes"];
+	        this.storage = source["storage"];
+	    }
+	}
+	export class StatefulSetDetail {
+	    name: string;
+	    namespace: string;
+	    uid: string;
+	    creationTimestamp: string;
+	    labels: Record<string, string>;
+	    annotations: Record<string, string>;
+	    ready: string;
+	    currentReplicas: number;
+	    updatedReplicas: number;
+	    age: string;
+	    updateStrategy: string;
+	    partition?: number;
+	    podManagementPolicy: string;
+	    serviceName: string;
+	    revisionHistoryLimit?: number;
+	    minReadySeconds: number;
+	    selector: Record<string, string>;
+	    volumeClaimTemplates: VolumeClaimInfo[];
+	    conditions: StatefulSetCondition[];
+	    images: string[];
+	
+	    static createFrom(source: any = {}) {
+	        return new StatefulSetDetail(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.namespace = source["namespace"];
+	        this.uid = source["uid"];
+	        this.creationTimestamp = source["creationTimestamp"];
+	        this.labels = source["labels"];
+	        this.annotations = source["annotations"];
+	        this.ready = source["ready"];
+	        this.currentReplicas = source["currentReplicas"];
+	        this.updatedReplicas = source["updatedReplicas"];
+	        this.age = source["age"];
+	        this.updateStrategy = source["updateStrategy"];
+	        this.partition = source["partition"];
+	        this.podManagementPolicy = source["podManagementPolicy"];
+	        this.serviceName = source["serviceName"];
+	        this.revisionHistoryLimit = source["revisionHistoryLimit"];
+	        this.minReadySeconds = source["minReadySeconds"];
+	        this.selector = source["selector"];
+	        this.volumeClaimTemplates = this.convertValues(source["volumeClaimTemplates"], VolumeClaimInfo);
+	        this.conditions = this.convertValues(source["conditions"], StatefulSetCondition);
+	        this.images = source["images"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class StatefulSetInfo {
+	    name: string;
+	    namespace: string;
+	    ready: string;
+	    serviceName: string;
+	    age: string;
+	    images: string[];
+	
+	    static createFrom(source: any = {}) {
+	        return new StatefulSetInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.namespace = source["namespace"];
+	        this.ready = source["ready"];
+	        this.serviceName = source["serviceName"];
+	        this.age = source["age"];
+	        this.images = source["images"];
+	    }
+	}
+	
 	
 
 }

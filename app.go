@@ -172,6 +172,30 @@ func (a *App) GetDeploymentEvents(namespace, name string) ([]kube.EventInfo, err
 	return a.client.GetDeploymentEvents(a.ctx, namespace, name)
 }
 
+// GetStatefulSets returns statefulsets, optionally filtered by namespace ("" for all namespaces).
+func (a *App) GetStatefulSets(namespace string) ([]kube.StatefulSetInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetStatefulSets(a.ctx, namespace)
+}
+
+// GetStatefulSetDetail returns detailed information about a single statefulset.
+func (a *App) GetStatefulSetDetail(namespace, name string) (*kube.StatefulSetDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetStatefulSetDetail(a.ctx, namespace, name)
+}
+
+// GetStatefulSetEvents returns events related to a specific statefulset.
+func (a *App) GetStatefulSetEvents(namespace, name string) ([]kube.EventInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetStatefulSetEvents(a.ctx, namespace, name)
+}
+
 // GetNodes returns all nodes in the connected cluster.
 func (a *App) GetNodes() ([]kube.NodeInfo, error) {
 	if a.client == nil {

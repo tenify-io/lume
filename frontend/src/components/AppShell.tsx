@@ -28,9 +28,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Body: Sidebar + Content */}
-      <div className="flex flex-1 min-h-0">
+      <div className="flex flex-1 min-h-0 bg-zinc-950">
         <Sidebar />
-        <div className="flex flex-col flex-1 min-h-0 min-w-0">
+        <div className="flex flex-col flex-1 min-h-0 min-w-0 bg-zinc-900 rounded-tl-lg overflow-hidden">
           {children}
         </div>
       </div>
