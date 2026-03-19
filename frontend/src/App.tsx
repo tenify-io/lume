@@ -7,6 +7,8 @@ import { PodListView } from "@/components/pods/PodListView";
 import { PodDetailView } from "@/components/pods/PodDetailView";
 import { NodeListView } from "@/components/nodes/NodeListView";
 import { NodeDetailView } from "@/components/nodes/NodeDetailView";
+import { DeploymentListView } from "@/components/deployments/DeploymentListView";
+import { DeploymentDetailView } from "@/components/deployments/DeploymentDetailView";
 
 function AppRouter() {
   const { route } = useNavigation();
@@ -52,6 +54,10 @@ function AppRouter() {
       {route.page === "nodes" && <NodeListView />}
       {route.page === "node-detail" && (
         <NodeDetailView name={route.name} />
+      )}
+      {route.page === "deployments" && <DeploymentListView />}
+      {route.page === "deployment-detail" && (
+        <DeploymentDetailView namespace={route.namespace} name={route.name} />
       )}
     </AppShell>
   );

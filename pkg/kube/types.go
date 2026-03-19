@@ -15,6 +15,6 @@ type EventInfo struct {
 	Source         string `json:"source"`
 	Count          int32  `json:"count"`
 	FirstTimestamp string `json:"firstTimestamp"`
-	LastTimestamp   string `json:"lastTimestamp"`
+	LastTimestamp  string `json:"lastTimestamp"`
 	Age            string `json:"age"`
 }

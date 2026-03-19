@@ -29,7 +29,7 @@ func loadShellPATH() {
 	if i := strings.LastIndexByte(string(out), '\000'); i != -1 {
 		path := string(out[i+1:])
 		if path != "" {
-			os.Setenv("PATH", path)
+			_ = os.Setenv("PATH", path)
 		}
 	}
 }

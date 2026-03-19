@@ -5,7 +5,9 @@ export type Route =
   | { page: "pods" }
   | { page: "pod-detail"; namespace: string; name: string }
   | { page: "nodes" }
-  | { page: "node-detail"; name: string };
+  | { page: "node-detail"; name: string }
+  | { page: "deployments" }
+  | { page: "deployment-detail"; namespace: string; name: string };
 
 interface NavigationContextValue {
   route: Route;

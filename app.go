@@ -94,6 +94,30 @@ func (a *App) GetPodEvents(namespace, name string) ([]kube.EventInfo, error) {
 	return a.client.GetPodEvents(a.ctx, namespace, name)
 }
 
+// GetDeployments returns deployments, optionally filtered by namespace ("" for all namespaces).
+func (a *App) GetDeployments(namespace string) ([]kube.DeploymentInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetDeployments(a.ctx, namespace)
+}
+
+// GetDeploymentDetail returns detailed information about a single deployment.
+func (a *App) GetDeploymentDetail(namespace, name string) (*kube.DeploymentDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetDeploymentDetail(a.ctx, namespace, name)
+}
+
+// GetDeploymentEvents returns events related to a specific deployment.
+func (a *App) GetDeploymentEvents(namespace, name string) ([]kube.EventInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetDeploymentEvents(a.ctx, namespace, name)
+}
+
 // GetNodes returns all nodes in the connected cluster.
 func (a *App) GetNodes() ([]kube.NodeInfo, error) {
 	if a.client == nil {
