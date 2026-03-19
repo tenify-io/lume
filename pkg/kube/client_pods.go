@@ -210,7 +210,7 @@ func (c *Client) GetPodDetail(ctx context.Context, namespace, name string) (*Pod
 		UID:                string(pod.UID),
 		CreationTimestamp:  pod.CreationTimestamp.Format("2006-01-02 15:04:05 MST"),
 		Labels:             pod.Labels,
-		Annotations:        pod.Annotations,
+		Annotations:        FilterAnnotations(pod.Annotations),
 		Status:             string(pod.Status.Phase),
 		Ready:              fmt.Sprintf("%d/%d", readyCount, totalCount),
 		Restarts:           totalRestarts,

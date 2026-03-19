@@ -9,6 +9,8 @@ import { NodeListView } from "@/components/nodes/NodeListView";
 import { NodeDetailView } from "@/components/nodes/NodeDetailView";
 import { DeploymentListView } from "@/components/deployments/DeploymentListView";
 import { DeploymentDetailView } from "@/components/deployments/DeploymentDetailView";
+import { StatefulSetListView } from "@/components/statefulsets/StatefulSetListView";
+import { StatefulSetDetailView } from "@/components/statefulsets/StatefulSetDetailView";
 
 function AppRouter() {
   const { route } = useNavigation();
@@ -54,6 +56,10 @@ function AppRouter() {
       {route.page === "deployments" && <DeploymentListView />}
       {route.page === "deployment-detail" && (
         <DeploymentDetailView namespace={route.namespace} name={route.name} />
+      )}
+      {route.page === "statefulsets" && <StatefulSetListView />}
+      {route.page === "statefulset-detail" && (
+        <StatefulSetDetailView namespace={route.namespace} name={route.name} />
       )}
     </AppShell>
   );

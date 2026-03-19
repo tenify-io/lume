@@ -45,26 +45,22 @@ const sampleContexts = [
   { name: "dev-local", cluster: "dev-cluster", user: "developer" },
 ];
 
-const sampleDeployments = [
+const sampleStatefulSets = [
   {
-    name: "web-app",
+    name: "mysql-primary",
     namespace: "default",
     ready: "3/3",
-    upToDate: 3,
-    available: 3,
+    serviceName: "mysql",
     age: "5d",
-    strategy: "RollingUpdate",
-    images: ["nginx:1.25"],
+    images: ["mysql:8.0"],
   },
   {
-    name: "api-server",
+    name: "redis-cluster",
     namespace: "production",
     ready: "2/5",
-    upToDate: 2,
-    available: 2,
+    serviceName: "redis",
     age: "10d",
-    strategy: "RollingUpdate",
-    images: ["api:v2"],
+    images: ["redis:7.0"],
   },
 ];
 
@@ -78,95 +74,96 @@ beforeEach(() => {
   mockBindings.GetNamespaces.mockResolvedValue(["default", "production"]);
   mockBindings.GetPods.mockResolvedValue([]);
   mockBindings.GetNodes.mockResolvedValue([]);
-  mockBindings.GetDeployments.mockResolvedValue(sampleDeployments);
+  mockBindings.GetDeployments.mockResolvedValue([]);
+  mockBindings.GetStatefulSets.mockResolvedValue(sampleStatefulSets);
   mockBindings.SetPreference.mockResolvedValue(undefined);
   mockBindings.SetContextAlias.mockResolvedValue(undefined);
 });
 
-describe("DeploymentListView", () => {
-  it("navigates to deployments view when clicking Deployments in sidebar", async () => {
+describe("StatefulSetListView", () => {
+  it("navigates to statefulsets view when clicking StatefulSets in sidebar", async () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
     });
 
     const user = userEvent.setup();
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("StatefulSets"));
 
     await waitFor(() => {
       expect(
-        screen.getByPlaceholderText("Search deployments..."),
+        screen.getByPlaceholderText("Search statefulsets..."),
       ).toBeInTheDocument();
     });
   });
 
-  it("displays deployments in the table", async () => {
+  it("displays statefulsets in the table", async () => {
     render(<App />);
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("StatefulSets"));
 
     await waitFor(() => {
-      expect(screen.getByText("web-app")).toBeInTheDocument();
-      expect(screen.getByText("api-server")).toBeInTheDocument();
+      expect(screen.getByText("mysql-primary")).toBeInTheDocument();
+      expect(screen.getByText("redis-cluster")).toBeInTheDocument();
     });
   });
 
-  it("shows deployment count in the status bar", async () => {
+  it("shows statefulset count in the status bar", async () => {
     render(<App />);
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("StatefulSets"));
 
     await waitFor(() => {
-      expect(screen.getByText("2 deployment(s)")).toBeInTheDocument();
+      expect(screen.getByText("2 statefulset(s)")).toBeInTheDocument();
     });
   });
 
-  it("filters deployments by search", async () => {
+  it("filters statefulsets by search", async () => {
     render(<App />);
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("StatefulSets"));
 
     await waitFor(() => {
-      expect(screen.getByText("web-app")).toBeInTheDocument();
+      expect(screen.getByText("mysql-primary")).toBeInTheDocument();
     });
 
     await user.type(
-      screen.getByPlaceholderText("Search deployments..."),
-      "web",
+      screen.getByPlaceholderText("Search statefulsets..."),
+      "mysql",
     );
 
     await waitFor(() => {
-      expect(screen.getByText("web-app")).toBeInTheDocument();
-      expect(screen.queryByText("api-server")).not.toBeInTheDocument();
+      expect(screen.getByText("mysql-primary")).toBeInTheDocument();
+      expect(screen.queryByText("redis-cluster")).not.toBeInTheDocument();
     });
   });
 
-  it("shows empty state when no deployments found", async () => {
-    mockBindings.GetDeployments.mockResolvedValue([]);
+  it("shows empty state when no statefulsets found", async () => {
+    mockBindings.GetStatefulSets.mockResolvedValue([]);
 
     render(<App />);
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("StatefulSets"));
 
     await waitFor(() => {
-      expect(screen.getByText("No deployments found.")).toBeInTheDocument();
+      expect(screen.getByText("No statefulsets found.")).toBeInTheDocument();
     });
   });
 });

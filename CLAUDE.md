@@ -82,6 +82,7 @@ All functionality must have thorough test coverage. CI enforces this.
 GitHub Actions workflow at `.github/workflows/ci.yml` runs on push/PR to `main`:
 - **backend-lint**: `golangci-lint run`
 - **backend-test**: `go test -v -race ./...`
+- **frontend-typecheck**: `npm run typecheck` (`tsc --noEmit`)
 - **frontend-lint**: `npm run lint`
 - **frontend-test**: `npm test`
 

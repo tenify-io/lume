@@ -88,6 +88,7 @@ func (w *Watcher) Start(ctx context.Context, namespace string) {
 	nsFactory := informers.NewSharedInformerFactoryWithOptions(w.clientset, 0, nsOpts...)
 	w.watchInformer(nsFactory.Core().V1().Pods().Informer(), "pods:changed", convertPod)
 	w.watchInformer(nsFactory.Apps().V1().Deployments().Informer(), "deployments:changed", convertDeployment)
+	w.watchInformer(nsFactory.Apps().V1().StatefulSets().Informer(), "statefulsets:changed", convertStatefulSet)
 
 	// Cluster-scoped resources
 	clusterFactory := informers.NewSharedInformerFactoryWithOptions(w.clientset, 0)

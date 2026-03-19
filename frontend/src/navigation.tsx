@@ -7,7 +7,9 @@ export type Route =
   | { page: "nodes" }
   | { page: "node-detail"; name: string }
   | { page: "deployments" }
-  | { page: "deployment-detail"; namespace: string; name: string };
+  | { page: "deployment-detail"; namespace: string; name: string }
+  | { page: "statefulsets" }
+  | { page: "statefulset-detail"; namespace: string; name: string };
 
 export interface Tab {
   id: string;
@@ -135,6 +137,10 @@ export function getTabTitle(route: Route): string {
     case "deployments":
       return "Deployments";
     case "deployment-detail":
+      return route.name;
+    case "statefulsets":
+      return "StatefulSets";
+    case "statefulset-detail":
       return route.name;
   }
 }

@@ -93,7 +93,7 @@ func (c *Client) GetDeploymentDetail(ctx context.Context, namespace, name string
 		UID:                  string(dep.UID),
 		CreationTimestamp:    dep.CreationTimestamp.Format("2006-01-02 15:04:05 MST"),
 		Labels:               dep.Labels,
-		Annotations:          dep.Annotations,
+		Annotations:          FilterAnnotations(dep.Annotations),
 		Ready:                fmt.Sprintf("%d/%d", dep.Status.ReadyReplicas, desired),
 		UpToDate:             dep.Status.UpdatedReplicas,
 		Available:            dep.Status.AvailableReplicas,

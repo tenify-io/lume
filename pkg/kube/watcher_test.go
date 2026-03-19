@@ -463,6 +463,175 @@ func TestWatcher_EmitsNodeDeletedOnRemove(t *testing.T) {
 	}
 }
 
+func TestWatcher_EmitsStatefulSetAddedEventsOnStart(t *testing.T) {
+	replicas := int32(3)
+	ss := &appsv1.StatefulSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-ss",
+			Namespace: "default",
+		},
+		Spec: appsv1.StatefulSetSpec{
+			Replicas:    &replicas,
+			ServiceName: "test-svc",
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{"app": "test"},
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{Labels: map[string]string{"app": "test"}},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{{Name: "app", Image: "app:v1"}},
+				},
+			},
+		},
+		Status: appsv1.StatefulSetStatus{
+			ReadyReplicas: 3,
+		},
+	}
+
+	client := fake.NewClientset(ss)
+	emit, events, mu := collectNamedEvents()
+	w := NewWatcher(client, emit)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	w.Start(ctx, "default")
+	defer w.Stop()
+
+	collected := waitForNamedEvents(t, events, mu, "statefulsets:changed", 1)
+
+	found := false
+	for _, ev := range collected {
+		if ev.Type == "ADDED" {
+			info, ok := ev.Data.(StatefulSetInfo)
+			if ok && info.Name == "test-ss" && info.Ready == "3/3" {
+				found = true
+				break
+			}
+		}
+	}
+	if !found {
+		t.Error("expected ADDED event for test-ss")
+	}
+}
+
+func TestWatcher_EmitsStatefulSetModifiedOnUpdate(t *testing.T) {
+	replicas := int32(3)
+	ss := &appsv1.StatefulSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "update-ss",
+			Namespace: "default",
+		},
+		Spec: appsv1.StatefulSetSpec{
+			Replicas:    &replicas,
+			ServiceName: "test-svc",
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{"app": "test"},
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{Labels: map[string]string{"app": "test"}},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{{Name: "app", Image: "app:v1"}},
+				},
+			},
+		},
+		Status: appsv1.StatefulSetStatus{
+			ReadyReplicas: 2,
+		},
+	}
+
+	client := fake.NewClientset(ss)
+	emit, events, mu := collectNamedEvents()
+	w := NewWatcher(client, emit)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	w.Start(ctx, "default")
+	defer w.Stop()
+
+	waitForNamedEvents(t, events, mu, "statefulsets:changed", 1)
+
+	// Update the statefulset status
+	ss.Status.ReadyReplicas = 3
+	_, err := client.AppsV1().StatefulSets("default").UpdateStatus(ctx, ss, metav1.UpdateOptions{})
+	if err != nil {
+		t.Fatalf("failed to update statefulset: %v", err)
+	}
+
+	collected := waitForNamedEvents(t, events, mu, "statefulsets:changed", 2)
+
+	found := false
+	for _, ev := range collected {
+		if ev.Type == "MODIFIED" {
+			info, ok := ev.Data.(StatefulSetInfo)
+			if ok && info.Name == "update-ss" && info.Ready == "3/3" {
+				found = true
+				break
+			}
+		}
+	}
+	if !found {
+		t.Error("expected MODIFIED event for update-ss with 3/3 ready")
+	}
+}
+
+func TestWatcher_EmitsStatefulSetDeletedOnRemove(t *testing.T) {
+	replicas := int32(1)
+	ss := &appsv1.StatefulSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "delete-ss",
+			Namespace: "default",
+		},
+		Spec: appsv1.StatefulSetSpec{
+			Replicas:    &replicas,
+			ServiceName: "test-svc",
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{"app": "test"},
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{Labels: map[string]string{"app": "test"}},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{{Name: "app", Image: "app:v1"}},
+				},
+			},
+		},
+	}
+
+	client := fake.NewClientset(ss)
+	emit, events, mu := collectNamedEvents()
+	w := NewWatcher(client, emit)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	w.Start(ctx, "default")
+	defer w.Stop()
+
+	waitForNamedEvents(t, events, mu, "statefulsets:changed", 1)
+
+	err := client.AppsV1().StatefulSets("default").Delete(ctx, "delete-ss", metav1.DeleteOptions{})
+	if err != nil {
+		t.Fatalf("failed to delete statefulset: %v", err)
+	}
+
+	collected := waitForNamedEvents(t, events, mu, "statefulsets:changed", 2)
+
+	found := false
+	for _, ev := range collected {
+		if ev.Type == "DELETED" {
+			info, ok := ev.Data.(StatefulSetInfo)
+			if ok && info.Name == "delete-ss" {
+				found = true
+				break
+			}
+		}
+	}
+	if !found {
+		t.Error("expected DELETED event for delete-ss")
+	}
+}
+
 func TestWatcher_EmitsDeploymentAddedEventsOnStart(t *testing.T) {
 	replicas := int32(3)
 	dep := &appsv1.Deployment{
