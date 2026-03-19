@@ -40,7 +40,7 @@ interface ClusterContextValue {
 const ClusterContext = createContext<ClusterContextValue | null>(null);
 
 export function ClusterProvider({ children }: { children: React.ReactNode }) {
-  const { navigate } = useNavigation();
+  const { navigate, resetTabs } = useNavigation();
 
   const [contexts, setContexts] = useState<KubeContext[]>([]);
   const [currentContext, setCurrentContext] = useState("");
@@ -130,7 +130,7 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
     setNamespaces([]);
     setSelectedNamespace("");
     setError("");
-    navigate({ page: "cluster-select" });
+    resetTabs({ page: "cluster-select" });
   }
 
   async function handleAliasChange(contextName: string, alias: string) {

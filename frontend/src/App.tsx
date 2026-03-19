@@ -1,8 +1,8 @@
-import lumeLogo from "@/assets/images/lume-logo-light.svg";
 import { NavigationProvider, useNavigation } from "@/navigation";
 import { ClusterProvider, useCluster } from "@/contexts/ClusterContext";
 import ClusterSelectView from "@/components/ClusterSelectView";
 import { AppShell } from "@/components/AppShell";
+import { TopBar } from "@/components/TopBar";
 import { PodListView } from "@/components/pods/PodListView";
 import { PodDetailView } from "@/components/pods/PodDetailView";
 import { NodeListView } from "@/components/nodes/NodeListView";
@@ -17,9 +17,7 @@ function AppRouter() {
   if (cluster.initializing) {
     return (
       <div className="flex flex-col h-screen bg-zinc-950 text-zinc-200 font-sans text-[13px]">
-        <header className="flex items-center gap-3 px-6 py-4 bg-zinc-900">
-          <img src={lumeLogo} alt="Lume" className="h-8" />
-        </header>
+        <TopBar />
         <div className="flex flex-col items-center justify-center flex-1 text-zinc-600 gap-3">
           <p>Loading...</p>
         </div>
@@ -30,9 +28,7 @@ function AppRouter() {
   if (route.page === "cluster-select") {
     return (
       <div className="flex flex-col h-screen bg-zinc-950 text-zinc-200 font-sans text-[13px]">
-        <header className="flex items-center gap-3 px-6 py-4 bg-zinc-900">
-          <img src={lumeLogo} alt="Lume" className="h-8" />
-        </header>
+        <TopBar />
         <ClusterSelectView
           contexts={cluster.contexts}
           aliases={cluster.aliases}

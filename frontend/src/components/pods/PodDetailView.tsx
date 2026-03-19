@@ -41,7 +41,7 @@ function ContainerList({
         return (
           <div key={c.name} className="bg-zinc-900 rounded-sm">
             <button
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-zinc-800/50 transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-zinc-900 transition-colors"
               onClick={() => onToggle(c.name)}
             >
               <span className="text-[10px] text-zinc-600">
@@ -456,13 +456,13 @@ export function PodDetailView({
                 <tbody>
                   {pod.volumes.map((v) => (
                     <tr key={v.name}>
-                      <td className="px-3 py-1.5 border-b border-zinc-900 font-mono text-zinc-200">
+                      <td className="px-3 py-1.5 border-b border-zinc-800/30 font-mono text-zinc-200">
                         {v.name}
                       </td>
-                      <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-400">
+                      <td className="px-3 py-1.5 border-b border-zinc-800/30 text-zinc-400">
                         {v.type}
                       </td>
-                      <td className="px-3 py-1.5 border-b border-zinc-900 font-mono text-zinc-400">
+                      <td className="px-3 py-1.5 border-b border-zinc-800/30 font-mono text-zinc-400">
                         {v.source || "—"}
                       </td>
                     </tr>

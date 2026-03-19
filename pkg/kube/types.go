@@ -7,6 +7,14 @@ type Context struct {
 	User    string `json:"user"`
 }
 
+// ClusterHealth represents the result of a cluster health check.
+type ClusterHealth struct {
+	Connected     bool   `json:"connected"`
+	LatencyMs     int64  `json:"latencyMs"`
+	ServerVersion string `json:"serverVersion"`
+	Error         string `json:"error"`
+}
+
 // EventInfo represents a Kubernetes event.
 type EventInfo struct {
 	Type           string `json:"type"`

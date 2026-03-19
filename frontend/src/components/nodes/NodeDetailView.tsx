@@ -202,13 +202,13 @@ export function NodeDetailView({ name }: { name: string }) {
                   { label: "Ephemeral Storage", cap: node.capacity.ephemeralStorage, alloc: node.allocatable.ephemeralStorage },
                 ].map((r) => (
                   <tr key={r.label}>
-                    <td className="px-3 py-1.5 border-b border-zinc-900 font-medium">
+                    <td className="px-3 py-1.5 border-b border-zinc-800/30 font-medium">
                       {r.label}
                     </td>
-                    <td className="px-3 py-1.5 border-b border-zinc-900 font-mono text-zinc-300">
+                    <td className="px-3 py-1.5 border-b border-zinc-800/30 font-mono text-zinc-300">
                       {r.cap || "—"}
                     </td>
-                    <td className="px-3 py-1.5 border-b border-zinc-900 font-mono text-zinc-300">
+                    <td className="px-3 py-1.5 border-b border-zinc-800/30 font-mono text-zinc-300">
                       {r.alloc || "—"}
                     </td>
                   </tr>
@@ -266,13 +266,13 @@ export function NodeDetailView({ name }: { name: string }) {
                 <tbody>
                   {node.taints.map((t, i) => (
                     <tr key={i}>
-                      <td className="px-3 py-1.5 border-b border-zinc-900 font-mono text-zinc-200">
+                      <td className="px-3 py-1.5 border-b border-zinc-800/30 font-mono text-zinc-200">
                         {t.key}
                       </td>
-                      <td className="px-3 py-1.5 border-b border-zinc-900 font-mono text-zinc-400">
+                      <td className="px-3 py-1.5 border-b border-zinc-800/30 font-mono text-zinc-400">
                         {t.value || "—"}
                       </td>
-                      <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-400">
+                      <td className="px-3 py-1.5 border-b border-zinc-800/30 text-zinc-400">
                         {t.effect}
                       </td>
                     </tr>
@@ -320,10 +320,10 @@ export function NodeDetailView({ name }: { name: string }) {
                         "unknown";
                       return (
                         <tr key={i}>
-                          <td className="px-3 py-1.5 border-b border-zinc-900 font-mono text-xs text-zinc-300 break-all">
+                          <td className="px-3 py-1.5 border-b border-zinc-800/30 font-mono text-xs text-zinc-300 break-all">
                             {displayName}
                           </td>
-                          <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-400 whitespace-nowrap">
+                          <td className="px-3 py-1.5 border-b border-zinc-800/30 text-zinc-400 whitespace-nowrap">
                             {img.sizeBytes ? formatBytes(img.sizeBytes) : "—"}
                           </td>
                         </tr>

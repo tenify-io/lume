@@ -126,6 +126,14 @@ body {
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+.wails-drag {
+  --wails-draggable: drag;
+}
+
+.wails-no-drag {
+  --wails-draggable: no-drag;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

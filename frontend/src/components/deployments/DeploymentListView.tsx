@@ -58,7 +58,7 @@ export function DeploymentListView() {
   return (
     <>
       {/* Toolbar */}
-      <div className="flex flex-wrap gap-4 items-center px-6 py-3 bg-zinc-900">
+      <div className="flex flex-wrap gap-4 items-center px-6 py-3 bg-zinc-900 border-b border-zinc-800/50">
         <div className="flex items-center gap-2">
           <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">
             Namespace:
@@ -79,13 +79,6 @@ export function DeploymentListView() {
               ))}
             </SelectContent>
           </Select>
-          <span className="flex items-center gap-1.5 text-xs text-emerald-400">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
-            </span>
-            Live
-          </span>
         </div>
 
         <div className="ml-auto">
@@ -134,7 +127,7 @@ export function DeploymentListView() {
             {filteredDeployments.map((dep) => (
               <tr
                 key={dep.namespace + "/" + dep.name}
-                className="cursor-pointer transition-colors hover:bg-zinc-900"
+                className="cursor-pointer transition-colors hover:bg-zinc-900/70"
                 onClick={() =>
                   navigate({
                     page: "deployment-detail",
@@ -143,28 +136,28 @@ export function DeploymentListView() {
                   })
                 }
               >
-                <td className="px-3 py-2 border-b border-zinc-900 font-semibold text-zinc-200 whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px]">
+                <td className="px-3 py-2 border-b border-zinc-800/30 font-semibold text-zinc-200 whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px]">
                   {dep.name}
                 </td>
-                <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                <td className="px-3 py-2 border-b border-zinc-800/30 whitespace-nowrap">
                   {dep.namespace}
                 </td>
-                <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                <td className="px-3 py-2 border-b border-zinc-800/30 whitespace-nowrap">
                   <StatusBadge status={deploymentStatus(dep)} />
                 </td>
-                <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                <td className="px-3 py-2 border-b border-zinc-800/30 whitespace-nowrap">
                   {dep.ready}
                 </td>
-                <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                <td className="px-3 py-2 border-b border-zinc-800/30 whitespace-nowrap">
                   {dep.upToDate}
                 </td>
-                <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                <td className="px-3 py-2 border-b border-zinc-800/30 whitespace-nowrap">
                   {dep.available}
                 </td>
-                <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                <td className="px-3 py-2 border-b border-zinc-800/30 whitespace-nowrap">
                   {dep.age}
                 </td>
-                <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap font-mono text-xs overflow-hidden text-ellipsis max-w-[300px]">
+                <td className="px-3 py-2 border-b border-zinc-800/30 whitespace-nowrap font-mono text-xs overflow-hidden text-ellipsis max-w-[300px]">
                   {dep.images?.join(", ") || "—"}
                 </td>
               </tr>
@@ -174,7 +167,7 @@ export function DeploymentListView() {
       </div>
 
       {/* Status bar */}
-      <div className="px-6 py-1.5 text-xs text-zinc-600 bg-zinc-900 shrink-0">
+      <div className="px-6 py-1.5 text-xs text-zinc-600 bg-[#111113] border-t border-zinc-800/50 shrink-0">
         {loading ? "Loading..." : `${filteredDeployments.length} deployment(s)`}
         {search && ` matching "${search}"`}
       </div>

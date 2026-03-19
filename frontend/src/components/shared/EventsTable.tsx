@@ -45,7 +45,7 @@ export function EventsTable({
           {events.map((e, i) => (
             <tr key={i}>
               <td
-                className={`px-3 py-1.5 border-b border-zinc-900 font-semibold whitespace-nowrap ${eventTypeClass(e.type)}`}
+                className={`px-3 py-1.5 border-b border-zinc-800/30 font-semibold whitespace-nowrap ${eventTypeClass(e.type)}`}
               >
                 {e.type}
                 {e.count > 1 && (
@@ -54,16 +54,16 @@ export function EventsTable({
                   </span>
                 )}
               </td>
-              <td className="px-3 py-1.5 border-b border-zinc-900 whitespace-nowrap">
+              <td className="px-3 py-1.5 border-b border-zinc-800/30 whitespace-nowrap">
                 {e.reason}
               </td>
-              <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-400 whitespace-nowrap">
+              <td className="px-3 py-1.5 border-b border-zinc-800/30 text-zinc-400 whitespace-nowrap">
                 {e.age}
               </td>
-              <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-500 whitespace-nowrap font-mono text-xs">
+              <td className="px-3 py-1.5 border-b border-zinc-800/30 text-zinc-500 whitespace-nowrap font-mono text-xs">
                 {e.source}
               </td>
-              <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-300">
+              <td className="px-3 py-1.5 border-b border-zinc-800/30 text-zinc-300">
                 {e.message}
               </td>
             </tr>

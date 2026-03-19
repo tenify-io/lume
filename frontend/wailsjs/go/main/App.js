@@ -14,6 +14,10 @@ export function GetAllPreferences() {
   return window['go']['main']['App']['GetAllPreferences']();
 }
 
+export function GetClusterHealth() {
+  return window['go']['main']['App']['GetClusterHealth']();
+}
+
 export function GetContextAliases() {
   return window['go']['main']['App']['GetContextAliases']();
 }
@@ -24,6 +28,18 @@ export function GetContexts() {
 
 export function GetCurrentContext() {
   return window['go']['main']['App']['GetCurrentContext']();
+}
+
+export function GetDeploymentDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetDeploymentDetail'](arg1, arg2);
+}
+
+export function GetDeploymentEvents(arg1, arg2) {
+  return window['go']['main']['App']['GetDeploymentEvents'](arg1, arg2);
+}
+
+export function GetDeployments(arg1) {
+  return window['go']['main']['App']['GetDeployments'](arg1);
 }
 
 export function GetNamespaces() {
@@ -64,6 +80,14 @@ export function SetContextAlias(arg1, arg2) {
 
 export function SetPreference(arg1, arg2) {
   return window['go']['main']['App']['SetPreference'](arg1, arg2);
+}
+
+export function StartHealthCheck() {
+  return window['go']['main']['App']['StartHealthCheck']();
+}
+
+export function StopHealthCheck() {
+  return window['go']['main']['App']['StopHealthCheck']();
 }
 
 export function UnwatchAll() {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -71,6 +72,26 @@ func Connect(contextName string) (*Client, error) {
 	}
 
 	return &Client{clientset: clientset}, nil
+}
+
+// GetClusterHealth performs a lightweight health check against the API server.
+func (c *Client) GetClusterHealth(ctx context.Context) ClusterHealth {
+	start := time.Now()
+	info, err := c.clientset.Discovery().ServerVersion()
+	latency := time.Since(start).Milliseconds()
+
+	if err != nil {
+		return ClusterHealth{
+			Connected: false,
+			LatencyMs: latency,
+			Error:     err.Error(),
+		}
+	}
+	return ClusterHealth{
+		Connected:     true,
+		LatencyMs:     latency,
+		ServerVersion: info.GitVersion,
+	}
 }
 
 // GetNamespaces returns all namespaces in the connected cluster.

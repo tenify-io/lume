@@ -25,6 +25,9 @@ const mockBindings = vi.hoisted(() => ({
   GetAllPreferences: vi.fn().mockResolvedValue({}),
   WatchPods: vi.fn().mockResolvedValue(undefined),
   UnwatchAll: vi.fn().mockResolvedValue(undefined),
+  GetClusterHealth: vi.fn().mockResolvedValue({ connected: true, latencyMs: 10, serverVersion: "v1.29.0", error: "" }),
+  StartHealthCheck: vi.fn().mockResolvedValue(undefined),
+  StopHealthCheck: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("../../wailsjs/go/main/App", () => mockBindings);
