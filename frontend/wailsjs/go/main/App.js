@@ -30,6 +30,14 @@ export function GetNamespaces() {
   return window['go']['main']['App']['GetNamespaces']();
 }
 
+export function GetPodDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetPodDetail'](arg1, arg2);
+}
+
+export function GetPodEvents(arg1, arg2) {
+  return window['go']['main']['App']['GetPodEvents'](arg1, arg2);
+}
+
 export function GetPods(arg1) {
   return window['go']['main']['App']['GetPods'](arg1);
 }

@@ -16,6 +16,10 @@ export function GetCurrentContext():Promise<string>;
 
 export function GetNamespaces():Promise<Array<string>>;
 
+export function GetPodDetail(arg1:string,arg2:string):Promise<kube.PodDetail>;
+
+export function GetPodEvents(arg1:string,arg2:string):Promise<Array<kube.EventInfo>>;
+
 export function GetPods(arg1:string):Promise<Array<kube.PodInfo>>;
 
 export function GetPreference(arg1:string):Promise<any>;

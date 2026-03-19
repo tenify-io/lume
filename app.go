@@ -66,6 +66,22 @@ func (a *App) GetPods(namespace string) ([]kube.PodInfo, error) {
 	return a.client.GetPods(a.ctx, namespace)
 }
 
+// GetPodDetail returns detailed information about a single pod.
+func (a *App) GetPodDetail(namespace, name string) (*kube.PodDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetPodDetail(a.ctx, namespace, name)
+}
+
+// GetPodEvents returns events related to a specific pod.
+func (a *App) GetPodEvents(namespace, name string) ([]kube.EventInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetPodEvents(a.ctx, namespace, name)
+}
+
 // GetPreference returns a stored preference value by key.
 func (a *App) GetPreference(key string) any {
 	return a.prefs.Get(key)

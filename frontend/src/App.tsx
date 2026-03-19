@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import lumeLogo from "@/assets/images/lume-logo-light.svg";
 import {
   GetContexts,
@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ClusterSelectView from "@/components/ClusterSelectView";
+import PodDetailView from "@/components/PodDetailView";
 
 interface KubeContext {
   name: string;
@@ -48,7 +49,7 @@ interface PodInfo {
   containers: ContainerInfo[];
 }
 
-type AppView = "cluster-select" | "dashboard";
+type AppView = "cluster-select" | "dashboard" | "pod-detail";
 
 function App() {
   const [view, setView] = useState<AppView>("cluster-select");
@@ -65,8 +66,11 @@ function App() {
   const [pods, setPods] = useState<PodInfo[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [expandedPod, setExpandedPod] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [selectedPod, setSelectedPod] = useState<{
+    namespace: string;
+    name: string;
+  } | null>(null);
 
   useEffect(() => {
     async function loadInitialData() {
@@ -147,7 +151,7 @@ function App() {
     setNamespaces([]);
     setSelectedNamespace("");
     setSearch("");
-    setExpandedPod(null);
+    setSelectedPod(null);
     setError("");
     setView("cluster-select");
   }
@@ -223,7 +227,7 @@ function App() {
       {/* Header */}
       <header className="flex items-center gap-3 px-6 py-4 bg-zinc-900">
         <img src={lumeLogo} alt="Lume" className="h-8" />
-        {connected && view === "dashboard" && (
+        {connected && (view === "dashboard" || view === "pod-detail") && (
           <div className="ml-auto flex items-center gap-2">
             <span className="text-[13px] text-zinc-300 font-medium">
               {clusterDisplayName}
@@ -322,7 +326,6 @@ function App() {
               <thead className="sticky top-0 z-10">
                 <tr>
                   {[
-                    "",
                     "Name",
                     "Namespace",
                     "Status",
@@ -343,118 +346,46 @@ function App() {
               </thead>
               <tbody>
                 {filteredPods.map((pod) => (
-                  <Fragment key={podKey(pod)}>
-                    <tr
-                      className="cursor-pointer transition-colors hover:bg-zinc-900"
-                      onClick={() =>
-                        setExpandedPod(
-                          expandedPod === podKey(pod) ? null : podKey(pod)
-                        )
-                      }
-                    >
-                      <td className="px-3 py-2 border-b border-zinc-900 w-6 text-zinc-600 text-[10px]">
-                        {expandedPod === podKey(pod) ? "\u25BC" : "\u25B6"}
-                      </td>
-                      <td className="px-3 py-2 border-b border-zinc-900 font-semibold text-zinc-200 whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px]">
-                        {pod.name}
-                      </td>
-                      <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
-                        {pod.namespace}
-                      </td>
-                      <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
-                        <span
-                          className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold ${statusClass(pod.status)}`}
-                        >
-                          {pod.status}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
-                        {pod.ready}
-                      </td>
-                      <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
-                        {pod.restarts}
-                      </td>
-                      <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
-                        {pod.age}
-                      </td>
-                      <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
-                        {pod.nodeName}
-                      </td>
-                      <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap font-mono text-xs">
-                        {pod.ip}
-                      </td>
-                    </tr>
-                    {expandedPod === podKey(pod) && (
-                      <tr>
-                        <td colSpan={9} className="!p-0 bg-zinc-950">
-                          <div className="flex flex-col gap-4 py-4 pr-6 pl-12">
-                            {/* Containers */}
-                            <div>
-                              <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wide mb-2">
-                                Containers
-                              </h4>
-                              <table className="w-full border-collapse">
-                                <thead>
-                                  <tr>
-                                    {["Name", "Image", "Ready", "State"].map(
-                                      (h) => (
-                                        <th
-                                          key={h}
-                                          className="px-3 py-1 text-left text-[11px] font-semibold text-zinc-600 border-b border-zinc-800"
-                                        >
-                                          {h}
-                                        </th>
-                                      )
-                                    )}
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {(pod.containers || []).map((c) => (
-                                    <tr key={c.name}>
-                                      <td className="px-3 py-1 text-xs border-b border-zinc-900">
-                                        {c.name}
-                                      </td>
-                                      <td className="px-3 py-1 text-xs border-b border-zinc-900 font-mono">
-                                        {c.image}
-                                      </td>
-                                      <td className="px-3 py-1 text-xs border-b border-zinc-900">
-                                        {c.ready ? "Yes" : "No"}
-                                      </td>
-                                      <td className="px-3 py-1 text-xs border-b border-zinc-900">
-                                        {c.state}
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-
-                            {/* Labels */}
-                            {pod.labels &&
-                              Object.keys(pod.labels).length > 0 && (
-                                <div>
-                                  <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wide mb-2">
-                                    Labels
-                                  </h4>
-                                  <div className="flex flex-wrap gap-1.5">
-                                    {Object.entries(pod.labels).map(
-                                      ([k, v]) => (
-                                        <span
-                                          key={k}
-                                          className="inline-block px-2 py-0.5 bg-zinc-900 rounded text-[11px] font-mono text-zinc-400"
-                                        >
-                                          {k}={v}
-                                        </span>
-                                      )
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </Fragment>
+                  <tr
+                    key={podKey(pod)}
+                    className="cursor-pointer transition-colors hover:bg-zinc-900"
+                    onClick={() => {
+                      setSelectedPod({
+                        namespace: pod.namespace,
+                        name: pod.name,
+                      });
+                      setView("pod-detail");
+                    }}
+                  >
+                    <td className="px-3 py-2 border-b border-zinc-900 font-semibold text-zinc-200 whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px]">
+                      {pod.name}
+                    </td>
+                    <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                      {pod.namespace}
+                    </td>
+                    <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold ${statusClass(pod.status)}`}
+                      >
+                        {pod.status}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                      {pod.ready}
+                    </td>
+                    <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                      {pod.restarts}
+                    </td>
+                    <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                      {pod.age}
+                    </td>
+                    <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap">
+                      {pod.nodeName}
+                    </td>
+                    <td className="px-3 py-2 border-b border-zinc-900 whitespace-nowrap font-mono text-xs">
+                      {pod.ip}
+                    </td>
+                  </tr>
                 ))}
               </tbody>
             </table>
@@ -464,6 +395,18 @@ function App() {
             {search && ` matching "${search}"`}
           </div>
         </>
+      )}
+
+      {/* Pod detail view */}
+      {view === "pod-detail" && connected && selectedPod && (
+        <PodDetailView
+          namespace={selectedPod.namespace}
+          name={selectedPod.name}
+          onBack={() => {
+            setSelectedPod(null);
+            setView("dashboard");
+          }}
+        />
       )}
     </div>
   );

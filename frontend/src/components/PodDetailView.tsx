@@ -1,0 +1,695 @@
+import { useEffect, useState } from "react";
+import { GetPodDetail, GetPodEvents } from "../../wailsjs/go/main/App";
+import { Button } from "@/components/ui/button";
+
+interface ContainerPort {
+  name: string;
+  containerPort: number;
+  protocol: string;
+}
+
+interface ContainerResource {
+  cpuRequest: string;
+  cpuLimit: string;
+  memoryRequest: string;
+  memoryLimit: string;
+}
+
+interface VolumeMount {
+  name: string;
+  mountPath: string;
+  readOnly: boolean;
+}
+
+interface ContainerDetail {
+  name: string;
+  image: string;
+  ready: boolean;
+  state: string;
+  stateDetail: string;
+  restartCount: number;
+  ports: ContainerPort[];
+  resources: ContainerResource;
+  volumeMounts: VolumeMount[];
+}
+
+interface PodVolume {
+  name: string;
+  type: string;
+  source: string;
+}
+
+interface PodCondition {
+  type: string;
+  status: string;
+  lastTransitionTime: string;
+  reason: string;
+  message: string;
+}
+
+interface PodDetail {
+  name: string;
+  namespace: string;
+  uid: string;
+  creationTimestamp: string;
+  labels: Record<string, string>;
+  annotations: Record<string, string>;
+  status: string;
+  ready: string;
+  restarts: number;
+  age: string;
+  nodeName: string;
+  ip: string;
+  hostIP: string;
+  startTime: string;
+  qosClass: string;
+  serviceAccountName: string;
+  restartPolicy: string;
+  conditions: PodCondition[];
+  initContainers: ContainerDetail[];
+  containers: ContainerDetail[];
+  volumes: PodVolume[];
+}
+
+interface EventInfo {
+  type: string;
+  reason: string;
+  message: string;
+  source: string;
+  count: number;
+  firstTimestamp: string;
+  lastTimestamp: string;
+  age: string;
+}
+
+interface PodDetailViewProps {
+  namespace: string;
+  name: string;
+  onBack: () => void;
+}
+
+function statusClass(status: string): string {
+  switch (status.toLowerCase()) {
+    case "running":
+      return "bg-emerald-950 text-emerald-400";
+    case "succeeded":
+      return "bg-sky-950 text-sky-400";
+    case "pending":
+      return "bg-amber-950 text-amber-400";
+    case "failed":
+      return "bg-red-950 text-red-400";
+    default:
+      return "bg-zinc-800 text-zinc-400";
+  }
+}
+
+function conditionStatusClass(status: string): string {
+  return status === "True"
+    ? "text-emerald-400"
+    : status === "False"
+      ? "text-red-400"
+      : "text-zinc-400";
+}
+
+function eventTypeClass(type: string): string {
+  return type === "Warning"
+    ? "text-amber-400"
+    : "text-zinc-400";
+}
+
+function containerStateClass(state: string): string {
+  if (state === "running") return "text-emerald-400";
+  if (["CrashLoopBackOff", "Error", "OOMKilled", "Completed"].includes(state))
+    return "text-red-400";
+  return "text-amber-400";
+}
+
+const SectionHeading = ({ children }: { children: React.ReactNode }) => (
+  <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wide mb-2">
+    {children}
+  </h3>
+);
+
+const MetadataRow = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) =>
+  value ? (
+    <div className="flex gap-2 py-1">
+      <span className="text-zinc-500 min-w-[140px] shrink-0">{label}</span>
+      <span className="text-zinc-200 break-all">{value}</span>
+    </div>
+  ) : null;
+
+function ContainerList({
+  containers,
+  expandedContainers,
+  onToggle,
+  hasResources,
+}: {
+  containers: ContainerDetail[];
+  expandedContainers: Set<string>;
+  onToggle: (name: string) => void;
+  hasResources: (r: ContainerResource) => string;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      {containers.map((c) => {
+        const expanded = expandedContainers.has(c.name);
+        return (
+          <div key={c.name} className="bg-zinc-900 rounded-sm">
+            <button
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-zinc-800/50 transition-colors"
+              onClick={() => onToggle(c.name)}
+            >
+              <span className="text-[10px] text-zinc-600">
+                {expanded ? "\u25BC" : "\u25B6"}
+              </span>
+              <span className="font-semibold text-[13px] text-zinc-200">
+                {c.name}
+              </span>
+              <span
+                className={`text-[11px] font-semibold ${containerStateClass(c.state)}`}
+              >
+                {c.state}
+              </span>
+              <span className="ml-auto text-xs text-zinc-500 font-mono truncate max-w-[300px]">
+                {c.image}
+              </span>
+            </button>
+            {expanded && (
+              <div className="px-4 pb-3 pt-1 flex flex-col gap-3 text-[13px]">
+                <MetadataRow
+                  label="Image"
+                  value={
+                    <span className="font-mono text-xs">{c.image}</span>
+                  }
+                />
+                <MetadataRow
+                  label="Ready"
+                  value={c.ready ? "Yes" : "No"}
+                />
+                <MetadataRow
+                  label="State"
+                  value={
+                    <span className={containerStateClass(c.state)}>
+                      {c.state}
+                      {c.stateDetail && (
+                        <span className="text-zinc-500 ml-2">
+                          — {c.stateDetail}
+                        </span>
+                      )}
+                    </span>
+                  }
+                />
+                <MetadataRow
+                  label="Restart Count"
+                  value={String(c.restartCount)}
+                />
+
+                {c.ports && c.ports.length > 0 && (
+                  <div>
+                    <div className="text-zinc-500 mb-1">Ports</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {c.ports.map((p, i) => (
+                        <span
+                          key={i}
+                          className="inline-block px-2 py-0.5 bg-zinc-800 rounded text-[11px] font-mono text-zinc-300"
+                        >
+                          {p.containerPort}/{p.protocol}
+                          {p.name && ` (${p.name})`}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {hasResources(c.resources) && (
+                  <div>
+                    <div className="text-zinc-500 mb-1">Resources</div>
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">
+                      {c.resources.cpuRequest && (
+                        <div>
+                          <span className="text-zinc-500">CPU Request: </span>
+                          <span className="font-mono">
+                            {c.resources.cpuRequest}
+                          </span>
+                        </div>
+                      )}
+                      {c.resources.cpuLimit && (
+                        <div>
+                          <span className="text-zinc-500">CPU Limit: </span>
+                          <span className="font-mono">
+                            {c.resources.cpuLimit}
+                          </span>
+                        </div>
+                      )}
+                      {c.resources.memoryRequest && (
+                        <div>
+                          <span className="text-zinc-500">
+                            Memory Request:{" "}
+                          </span>
+                          <span className="font-mono">
+                            {c.resources.memoryRequest}
+                          </span>
+                        </div>
+                      )}
+                      {c.resources.memoryLimit && (
+                        <div>
+                          <span className="text-zinc-500">
+                            Memory Limit:{" "}
+                          </span>
+                          <span className="font-mono">
+                            {c.resources.memoryLimit}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {c.volumeMounts && c.volumeMounts.length > 0 && (
+                  <div>
+                    <div className="text-zinc-500 mb-1">Volume Mounts</div>
+                    <table className="w-full border-collapse text-xs">
+                      <thead>
+                        <tr>
+                          {["Name", "Mount Path", "Read Only"].map((h) => (
+                            <th
+                              key={h}
+                              className="px-2 py-1 text-left text-[11px] font-semibold text-zinc-600"
+                            >
+                              {h}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {c.volumeMounts.map((vm, i) => (
+                          <tr key={i}>
+                            <td className="px-2 py-1 border-b border-zinc-800 font-mono">
+                              {vm.name}
+                            </td>
+                            <td className="px-2 py-1 border-b border-zinc-800 font-mono">
+                              {vm.mountPath}
+                            </td>
+                            <td className="px-2 py-1 border-b border-zinc-800">
+                              {vm.readOnly ? "Yes" : "No"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export default function PodDetailView({
+  namespace,
+  name,
+  onBack,
+}: PodDetailViewProps) {
+  const [pod, setPod] = useState<PodDetail | null>(null);
+  const [events, setEvents] = useState<EventInfo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [expandedContainers, setExpandedContainers] = useState<Set<string>>(
+    new Set()
+  );
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      setError("");
+      try {
+        const [podDetail, podEvents] = await Promise.all([
+          GetPodDetail(namespace, name),
+          GetPodEvents(namespace, name),
+        ]);
+        setPod(podDetail);
+        setEvents(podEvents || []);
+      } catch (e: unknown) {
+        setError(String(e));
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [namespace, name]);
+
+  function toggleContainer(containerName: string) {
+    setExpandedContainers((prev) => {
+      const next = new Set(prev);
+      if (next.has(containerName)) {
+        next.delete(containerName);
+      } else {
+        next.add(containerName);
+      }
+      return next;
+    });
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center flex-1 text-zinc-600 gap-3">
+        <p>Loading pod details...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center flex-1 gap-3">
+        <p className="text-red-400">{error}</p>
+        <Button variant="secondary" onClick={onBack}>
+          Back to Pods
+        </Button>
+      </div>
+    );
+  }
+
+  if (!pod) return null;
+
+  const hasResources = (r: ContainerResource) =>
+    r.cpuRequest || r.cpuLimit || r.memoryRequest || r.memoryLimit;
+
+  return (
+    <div className="flex-1 overflow-auto min-h-0">
+      <div className="px-6 py-5 flex flex-col gap-6">
+        {/* Back */}
+        <div>
+          <Button variant="ghost" size="sm" onClick={onBack}>
+            &larr; Back
+          </Button>
+        </div>
+
+        {/* Pod overview */}
+        <section className="bg-zinc-900 rounded-sm px-5 py-4 flex flex-col gap-4">
+          {/* Identity */}
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <h2 className="text-base font-semibold text-zinc-100 truncate">
+                {pod.name}
+              </h2>
+              <p className="text-xs text-zinc-500 mt-0.5">
+                {pod.namespace}
+              </p>
+            </div>
+            <span
+              className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold shrink-0 ${statusClass(pod.status)}`}
+            >
+              {pod.status}
+            </span>
+          </div>
+
+          {/* Quick stats */}
+          <div className="grid grid-cols-4 gap-3">
+            {[
+              { label: "Ready", value: pod.ready },
+              { label: "Restarts", value: String(pod.restarts) },
+              { label: "Age", value: pod.age },
+              { label: "QoS", value: pod.qosClass },
+            ].map((s) => (
+              <div key={s.label} className="bg-zinc-950 rounded-sm px-3 py-2">
+                <div className="text-[11px] text-zinc-500 uppercase tracking-wide">
+                  {s.label}
+                </div>
+                <div className="text-sm font-semibold text-zinc-200 mt-0.5">
+                  {s.value || "—"}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Details grid */}
+          <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-[13px]">
+            <div>
+              <span className="text-zinc-500">Node</span>
+              <p className="text-zinc-200 truncate">{pod.nodeName || "—"}</p>
+            </div>
+            <div>
+              <span className="text-zinc-500">Service Account</span>
+              <p className="text-zinc-200 truncate">
+                {pod.serviceAccountName || "—"}
+              </p>
+            </div>
+            <div>
+              <span className="text-zinc-500">Pod IP</span>
+              <p className="text-zinc-200 font-mono text-xs">
+                {pod.ip || "—"}
+              </p>
+            </div>
+            <div>
+              <span className="text-zinc-500">Host IP</span>
+              <p className="text-zinc-200 font-mono text-xs">
+                {pod.hostIP || "—"}
+              </p>
+            </div>
+            <div>
+              <span className="text-zinc-500">Restart Policy</span>
+              <p className="text-zinc-200">{pod.restartPolicy || "—"}</p>
+            </div>
+            <div>
+              <span className="text-zinc-500">Start Time</span>
+              <p className="text-zinc-200">{pod.startTime || "—"}</p>
+            </div>
+            <div>
+              <span className="text-zinc-500">Created</span>
+              <p className="text-zinc-200">{pod.creationTimestamp || "—"}</p>
+            </div>
+            <div>
+              <span className="text-zinc-500">UID</span>
+              <p className="text-zinc-200 font-mono text-xs truncate">
+                {pod.uid}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Labels & Annotations */}
+        {((pod.labels && Object.keys(pod.labels).length > 0) ||
+          (pod.annotations && Object.keys(pod.annotations).length > 0)) && (
+          <section className="flex flex-col gap-4">
+            {pod.labels && Object.keys(pod.labels).length > 0 && (
+              <div>
+                <SectionHeading>Labels</SectionHeading>
+                <div className="flex flex-col gap-1">
+                  {Object.entries(pod.labels).map(([k, v]) => (
+                    <div
+                      key={k}
+                      className="flex gap-2 text-[12px] font-mono leading-relaxed"
+                    >
+                      <span className="text-zinc-500">{k}</span>
+                      <span className="text-zinc-400">{v}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {pod.annotations && Object.keys(pod.annotations).length > 0 && (
+              <div>
+                <SectionHeading>Annotations</SectionHeading>
+                <div className="flex flex-col gap-1">
+                  {Object.entries(pod.annotations).map(([k, v]) => (
+                    <div
+                      key={k}
+                      className="flex gap-2 text-[12px] font-mono leading-relaxed"
+                    >
+                      <span className="text-zinc-500 shrink-0">{k}</span>
+                      <span className="text-zinc-400 break-all">{v}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Conditions */}
+        {pod.conditions && pod.conditions.length > 0 && (
+          <section>
+            <SectionHeading>Conditions</SectionHeading>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-[13px]">
+                <thead>
+                  <tr>
+                    {["Type", "Status", "Last Transition", "Reason", "Message"].map(
+                      (h) => (
+                        <th
+                          key={h}
+                          className="px-3 py-1.5 text-left text-[11px] font-semibold text-zinc-600 bg-zinc-900"
+                        >
+                          {h}
+                        </th>
+                      )
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {pod.conditions.map((c) => (
+                    <tr key={c.type}>
+                      <td className="px-3 py-1.5 border-b border-zinc-900 font-medium">
+                        {c.type}
+                      </td>
+                      <td
+                        className={`px-3 py-1.5 border-b border-zinc-900 font-semibold ${conditionStatusClass(c.status)}`}
+                      >
+                        {c.status}
+                      </td>
+                      <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-400 whitespace-nowrap">
+                        {c.lastTransitionTime}
+                      </td>
+                      <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-400">
+                        {c.reason}
+                      </td>
+                      <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-400">
+                        {c.message}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {/* Init Containers */}
+        {pod.initContainers && pod.initContainers.length > 0 && (
+          <section>
+            <SectionHeading>
+              Init Containers ({pod.initContainers.length})
+            </SectionHeading>
+            <ContainerList
+              containers={pod.initContainers}
+              expandedContainers={expandedContainers}
+              onToggle={toggleContainer}
+              hasResources={hasResources}
+            />
+          </section>
+        )}
+
+        {/* Containers */}
+        <section>
+          <SectionHeading>
+            Containers ({pod.containers?.length || 0})
+          </SectionHeading>
+          <ContainerList
+            containers={pod.containers || []}
+            expandedContainers={expandedContainers}
+            onToggle={toggleContainer}
+            hasResources={hasResources}
+          />
+        </section>
+
+        {/* Volumes */}
+        {pod.volumes && pod.volumes.length > 0 && (
+          <section>
+            <SectionHeading>Volumes ({pod.volumes.length})</SectionHeading>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-[13px]">
+                <thead>
+                  <tr>
+                    {["Name", "Type", "Source"].map((h) => (
+                      <th
+                        key={h}
+                        className="px-3 py-1.5 text-left text-[11px] font-semibold text-zinc-600 bg-zinc-900"
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {pod.volumes.map((v) => (
+                    <tr key={v.name}>
+                      <td className="px-3 py-1.5 border-b border-zinc-900 font-mono text-zinc-200">
+                        {v.name}
+                      </td>
+                      <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-400">
+                        {v.type}
+                      </td>
+                      <td className="px-3 py-1.5 border-b border-zinc-900 font-mono text-zinc-400">
+                        {v.source || "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {/* Events */}
+        <section>
+          <SectionHeading>Events ({events.length})</SectionHeading>
+          {events.length === 0 ? (
+            <p className="text-zinc-600 text-[13px]">
+              No events found for this pod.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-[13px]">
+                <thead>
+                  <tr>
+                    {[
+                      "Type",
+                      "Reason",
+                      "Age",
+                      "Source",
+                      "Message",
+                    ].map((h) => (
+                      <th
+                        key={h}
+                        className="px-3 py-1.5 text-left text-[11px] font-semibold text-zinc-600 bg-zinc-900 whitespace-nowrap"
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {events.map((e, i) => (
+                    <tr key={i}>
+                      <td
+                        className={`px-3 py-1.5 border-b border-zinc-900 font-semibold whitespace-nowrap ${eventTypeClass(e.type)}`}
+                      >
+                        {e.type}
+                        {e.count > 1 && (
+                          <span className="text-zinc-600 font-normal ml-1">
+                            x{e.count}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-3 py-1.5 border-b border-zinc-900 whitespace-nowrap">
+                        {e.reason}
+                      </td>
+                      <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-400 whitespace-nowrap">
+                        {e.age}
+                      </td>
+                      <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-500 whitespace-nowrap font-mono text-xs">
+                        {e.source}
+                      </td>
+                      <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-300">
+                        {e.message}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}
