@@ -48,48 +48,42 @@ const sampleContexts = [
   { name: "dev-local", cluster: "dev-cluster", user: "developer" },
 ];
 
-const sampleDeployment = {
-  name: "web-app",
-  namespace: "default",
+const sampleDaemonSet = {
+  name: "node-exporter",
+  namespace: "monitoring",
   uid: "abc-123-def",
   creationTimestamp: "2026-03-10 12:00:00 UTC",
-  labels: { app: "web", env: "prod" },
-  annotations: { "deployment.kubernetes.io/revision": "3" },
-  ready: "3/3",
+  labels: { app: "node-exporter", env: "prod" },
+  annotations: { "app.kubernetes.io/version": "1.5.0" },
+  desired: 3,
+  current: 3,
+  ready: 3,
   upToDate: 3,
   available: 3,
   age: "9d",
-  strategy: "RollingUpdate",
-  minReadySeconds: 10,
+  updateStrategy: "RollingUpdate",
+  minReadySeconds: 0,
   revisionHistoryLimit: 10,
-  selector: { app: "web" },
-  maxSurge: "25%",
-  maxUnavailable: "1",
+  selector: { app: "node-exporter" },
+  nodeSelector: { "kubernetes.io/os": "linux" },
   conditions: [
     {
       type: "Available",
       status: "True",
       lastTransitionTime: "2026-03-10 12:01:00 UTC",
       reason: "MinimumReplicasAvailable",
-      message: "Deployment has minimum availability.",
-    },
-    {
-      type: "Progressing",
-      status: "True",
-      lastTransitionTime: "2026-03-10 12:01:00 UTC",
-      reason: "NewReplicaSetAvailable",
-      message: "ReplicaSet has successfully progressed.",
+      message: "DaemonSet has minimum availability.",
     },
   ],
-  images: ["nginx:1.25", "sidecar:latest"],
+  images: ["prom/node-exporter:latest", "sidecar:v1"],
 };
 
 const sampleEvents = [
   {
     type: "Normal",
-    reason: "ScalingReplicaSet",
-    message: "Scaled up replica set web-app-abc123 to 3",
-    source: "deployment-controller",
+    reason: "SuccessfulCreate",
+    message: "Created pod: node-exporter-abc12",
+    source: "daemonset-controller",
     count: 1,
     firstTimestamp: "2026-03-10 12:00:00 UTC",
     lastTimestamp: "2026-03-10 12:00:00 UTC",
@@ -104,94 +98,94 @@ beforeEach(() => {
   mockBindings.GetContextAliases.mockResolvedValue({});
   mockBindings.GetPreference.mockResolvedValue("dev-local");
   mockBindings.ConnectToContext.mockResolvedValue(undefined);
-  mockBindings.GetNamespaces.mockResolvedValue(["default"]);
+  mockBindings.GetNamespaces.mockResolvedValue(["monitoring"]);
   mockBindings.GetPods.mockResolvedValue([]);
   mockBindings.GetNodes.mockResolvedValue([]);
-  mockBindings.GetDeployments.mockResolvedValue([
+  mockBindings.GetDeployments.mockResolvedValue([]);
+  mockBindings.GetStatefulSets.mockResolvedValue([]);
+  mockBindings.GetDaemonSets.mockResolvedValue([
     {
-      name: "web-app",
-      namespace: "default",
-      ready: "3/3",
+      name: "node-exporter",
+      namespace: "monitoring",
+      desired: 3,
+      current: 3,
+      ready: 3,
       upToDate: 3,
       available: 3,
       age: "9d",
-      strategy: "RollingUpdate",
-      images: ["nginx:1.25", "sidecar:latest"],
+      nodeSelector: "kubernetes.io/os=linux",
+      images: ["prom/node-exporter:latest", "sidecar:v1"],
     },
   ]);
-  mockBindings.GetDeploymentDetail.mockResolvedValue(sampleDeployment);
-  mockBindings.GetDeploymentEvents.mockResolvedValue(sampleEvents);
+  mockBindings.GetDaemonSetDetail.mockResolvedValue(sampleDaemonSet);
+  mockBindings.GetDaemonSetEvents.mockResolvedValue(sampleEvents);
   mockBindings.SetPreference.mockResolvedValue(undefined);
   mockBindings.SetContextAlias.mockResolvedValue(undefined);
 });
 
-describe("DeploymentDetailView", () => {
-  it("shows deployment detail when clicking a deployment", async () => {
+describe("DaemonSetDetailView", () => {
+  it("shows daemonset detail when clicking a daemonset", async () => {
     render(<App />);
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("DaemonSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("DaemonSets"));
 
     await waitFor(() => {
-      expect(screen.getByText("web-app")).toBeInTheDocument();
+      expect(screen.getByText("node-exporter")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("web-app"));
+    await user.click(screen.getByText("node-exporter"));
 
     await waitFor(() => {
-      expect(mockBindings.GetDeploymentDetail).toHaveBeenCalledWith(
-        "default",
-        "web-app",
+      expect(mockBindings.GetDaemonSetDetail).toHaveBeenCalledWith(
+        "monitoring",
+        "node-exporter",
       );
     });
 
     await waitFor(() => {
       // Quick stats
-      expect(screen.getByText("3/3")).toBeInTheDocument();
-      // Strategy
       expect(screen.getByText("RollingUpdate")).toBeInTheDocument();
     });
   });
 
-  it("displays deployment conditions", async () => {
+  it("displays daemonset conditions", async () => {
     render(<App />);
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("DaemonSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("DaemonSets"));
     await waitFor(() => {
-      expect(screen.getByText("web-app")).toBeInTheDocument();
+      expect(screen.getByText("node-exporter")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("web-app"));
+    await user.click(screen.getByText("node-exporter"));
 
     await waitFor(() => {
       expect(screen.getByText("Conditions")).toBeInTheDocument();
-      expect(
-        screen.getByText("MinimumReplicasAvailable"),
-      ).toBeInTheDocument();
+      expect(screen.getByText("MinimumReplicasAvailable")).toBeInTheDocument();
     });
   });
 
-  it("displays deployment events", async () => {
+  it("displays daemonset events", async () => {
     render(<App />);
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("DaemonSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("DaemonSets"));
     await waitFor(() => {
-      expect(screen.getByText("web-app")).toBeInTheDocument();
+      expect(screen.getByText("node-exporter")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("web-app"));
+    await user.click(screen.getByText("node-exporter"));
 
     await waitFor(() => {
       expect(screen.getByText("Events (1)")).toBeInTheDocument();
-      expect(screen.getByText("ScalingReplicaSet")).toBeInTheDocument();
+      expect(screen.getByText("SuccessfulCreate")).toBeInTheDocument();
     });
   });
 
@@ -200,13 +194,13 @@ describe("DeploymentDetailView", () => {
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("DaemonSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("DaemonSets"));
     await waitFor(() => {
-      expect(screen.getByText("web-app")).toBeInTheDocument();
+      expect(screen.getByText("node-exporter")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("web-app"));
+    await user.click(screen.getByText("node-exporter"));
 
     await waitFor(() => {
       expect(screen.getByText("Labels")).toBeInTheDocument();
@@ -219,41 +213,59 @@ describe("DeploymentDetailView", () => {
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("DaemonSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("DaemonSets"));
     await waitFor(() => {
-      expect(screen.getByText("web-app")).toBeInTheDocument();
+      expect(screen.getByText("node-exporter")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("web-app"));
+    await user.click(screen.getByText("node-exporter"));
 
     await waitFor(() => {
       expect(screen.getByText("Images (2)")).toBeInTheDocument();
-      expect(screen.getByText("nginx:1.25")).toBeInTheDocument();
-      expect(screen.getByText("sidecar:latest")).toBeInTheDocument();
+      expect(screen.getByText("prom/node-exporter:latest")).toBeInTheDocument();
+      expect(screen.getByText("sidecar:v1")).toBeInTheDocument();
     });
   });
 
-  it("shows error state when deployment fetch fails", async () => {
-    mockBindings.GetDeploymentDetail.mockRejectedValue(
-      new Error("deployment not found"),
+  it("displays node selector section", async () => {
+    render(<App />);
+
+    const user = userEvent.setup();
+    await waitFor(() => {
+      expect(screen.getByText("DaemonSets")).toBeInTheDocument();
+    });
+    await user.click(screen.getByText("DaemonSets"));
+    await waitFor(() => {
+      expect(screen.getByText("node-exporter")).toBeInTheDocument();
+    });
+    await user.click(screen.getByText("node-exporter"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Node Selector")).toBeInTheDocument();
+    });
+  });
+
+  it("shows error state when daemonset fetch fails", async () => {
+    mockBindings.GetDaemonSetDetail.mockRejectedValue(
+      new Error("daemonset not found"),
     );
 
     render(<App />);
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("Deployments")).toBeInTheDocument();
+      expect(screen.getByText("DaemonSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("Deployments"));
+    await user.click(screen.getByText("DaemonSets"));
     await waitFor(() => {
-      expect(screen.getByText("web-app")).toBeInTheDocument();
+      expect(screen.getByText("node-exporter")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("web-app"));
+    await user.click(screen.getByText("node-exporter"));
 
     await waitFor(() => {
       expect(
-        screen.getByText("Back to Deployments"),
+        screen.getByText("Back to DaemonSets"),
       ).toBeInTheDocument();
     });
   });

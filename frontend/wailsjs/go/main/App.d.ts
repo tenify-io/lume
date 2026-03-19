@@ -16,6 +16,12 @@ export function GetContexts():Promise<Array<kube.Context>>;
 
 export function GetCurrentContext():Promise<string>;
 
+export function GetDaemonSetDetail(arg1:string,arg2:string):Promise<kube.DaemonSetDetail>;
+
+export function GetDaemonSetEvents(arg1:string,arg2:string):Promise<Array<kube.EventInfo>>;
+
+export function GetDaemonSets(arg1:string):Promise<Array<kube.DaemonSetInfo>>;
+
 export function GetDeploymentDetail(arg1:string,arg2:string):Promise<kube.DeploymentDetail>;
 
 export function GetDeploymentEvents(arg1:string,arg2:string):Promise<Array<kube.EventInfo>>;

@@ -150,6 +150,122 @@ export namespace kube {
 	        this.user = source["user"];
 	    }
 	}
+	export class DaemonSetCondition {
+	    type: string;
+	    status: string;
+	    lastTransitionTime: string;
+	    reason: string;
+	    message: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new DaemonSetCondition(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.type = source["type"];
+	        this.status = source["status"];
+	        this.lastTransitionTime = source["lastTransitionTime"];
+	        this.reason = source["reason"];
+	        this.message = source["message"];
+	    }
+	}
+	export class DaemonSetDetail {
+	    name: string;
+	    namespace: string;
+	    uid: string;
+	    creationTimestamp: string;
+	    labels: Record<string, string>;
+	    annotations: Record<string, string>;
+	    desired: number;
+	    current: number;
+	    ready: number;
+	    upToDate: number;
+	    available: number;
+	    age: string;
+	    updateStrategy: string;
+	    minReadySeconds: number;
+	    revisionHistoryLimit?: number;
+	    selector: Record<string, string>;
+	    nodeSelector: Record<string, string>;
+	    conditions: DaemonSetCondition[];
+	    images: string[];
+	
+	    static createFrom(source: any = {}) {
+	        return new DaemonSetDetail(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.namespace = source["namespace"];
+	        this.uid = source["uid"];
+	        this.creationTimestamp = source["creationTimestamp"];
+	        this.labels = source["labels"];
+	        this.annotations = source["annotations"];
+	        this.desired = source["desired"];
+	        this.current = source["current"];
+	        this.ready = source["ready"];
+	        this.upToDate = source["upToDate"];
+	        this.available = source["available"];
+	        this.age = source["age"];
+	        this.updateStrategy = source["updateStrategy"];
+	        this.minReadySeconds = source["minReadySeconds"];
+	        this.revisionHistoryLimit = source["revisionHistoryLimit"];
+	        this.selector = source["selector"];
+	        this.nodeSelector = source["nodeSelector"];
+	        this.conditions = this.convertValues(source["conditions"], DaemonSetCondition);
+	        this.images = source["images"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class DaemonSetInfo {
+	    name: string;
+	    namespace: string;
+	    desired: number;
+	    current: number;
+	    ready: number;
+	    upToDate: number;
+	    available: number;
+	    age: string;
+	    nodeSelector: string;
+	    images: string[];
+	
+	    static createFrom(source: any = {}) {
+	        return new DaemonSetInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.namespace = source["namespace"];
+	        this.desired = source["desired"];
+	        this.current = source["current"];
+	        this.ready = source["ready"];
+	        this.upToDate = source["upToDate"];
+	        this.available = source["available"];
+	        this.age = source["age"];
+	        this.nodeSelector = source["nodeSelector"];
+	        this.images = source["images"];
+	    }
+	}
 	export class DeploymentCondition {
 	    type: string;
 	    status: string;

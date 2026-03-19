@@ -48,22 +48,30 @@ const sampleContexts = [
   { name: "dev-local", cluster: "dev-cluster", user: "developer" },
 ];
 
-const sampleStatefulSets = [
+const sampleDaemonSets = [
   {
-    name: "mysql-primary",
-    namespace: "default",
-    ready: "3/3",
-    serviceName: "mysql",
-    age: "5d",
-    images: ["mysql:8.0"],
+    name: "node-exporter",
+    namespace: "monitoring",
+    desired: 3,
+    current: 3,
+    ready: 3,
+    upToDate: 3,
+    available: 3,
+    age: "15d",
+    nodeSelector: "kubernetes.io/os=linux",
+    images: ["prom/node-exporter:latest"],
   },
   {
-    name: "redis-cluster",
-    namespace: "production",
-    ready: "2/5",
-    serviceName: "redis",
-    age: "10d",
-    images: ["redis:7.0"],
+    name: "filebeat",
+    namespace: "logging",
+    desired: 5,
+    current: 5,
+    ready: 2,
+    upToDate: 3,
+    available: 2,
+    age: "3d",
+    nodeSelector: "",
+    images: ["docker.elastic.co/beats/filebeat:8.0"],
   },
 ];
 
@@ -74,99 +82,100 @@ beforeEach(() => {
   mockBindings.GetContextAliases.mockResolvedValue({});
   mockBindings.GetPreference.mockResolvedValue("dev-local");
   mockBindings.ConnectToContext.mockResolvedValue(undefined);
-  mockBindings.GetNamespaces.mockResolvedValue(["default", "production"]);
+  mockBindings.GetNamespaces.mockResolvedValue(["monitoring", "logging"]);
   mockBindings.GetPods.mockResolvedValue([]);
   mockBindings.GetNodes.mockResolvedValue([]);
   mockBindings.GetDeployments.mockResolvedValue([]);
-  mockBindings.GetStatefulSets.mockResolvedValue(sampleStatefulSets);
+  mockBindings.GetStatefulSets.mockResolvedValue([]);
+  mockBindings.GetDaemonSets.mockResolvedValue(sampleDaemonSets);
   mockBindings.SetPreference.mockResolvedValue(undefined);
   mockBindings.SetContextAlias.mockResolvedValue(undefined);
 });
 
-describe("StatefulSetListView", () => {
-  it("navigates to statefulsets view when clicking StatefulSets in sidebar", async () => {
+describe("DaemonSetListView", () => {
+  it("navigates to daemonsets view when clicking DaemonSets in sidebar", async () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
+      expect(screen.getByText("DaemonSets")).toBeInTheDocument();
     });
 
     const user = userEvent.setup();
-    await user.click(screen.getByText("StatefulSets"));
+    await user.click(screen.getByText("DaemonSets"));
 
     await waitFor(() => {
       expect(
-        screen.getByPlaceholderText("Search statefulsets..."),
+        screen.getByPlaceholderText("Search daemonsets..."),
       ).toBeInTheDocument();
     });
   });
 
-  it("displays statefulsets in the table", async () => {
+  it("displays daemonsets in the table", async () => {
     render(<App />);
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
+      expect(screen.getByText("DaemonSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("StatefulSets"));
+    await user.click(screen.getByText("DaemonSets"));
 
     await waitFor(() => {
-      expect(screen.getByText("mysql-primary")).toBeInTheDocument();
-      expect(screen.getByText("redis-cluster")).toBeInTheDocument();
+      expect(screen.getByText("node-exporter")).toBeInTheDocument();
+      expect(screen.getByText("filebeat")).toBeInTheDocument();
     });
   });
 
-  it("shows statefulset count in the status bar", async () => {
+  it("shows daemonset count in the status bar", async () => {
     render(<App />);
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
+      expect(screen.getByText("DaemonSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("StatefulSets"));
+    await user.click(screen.getByText("DaemonSets"));
 
     await waitFor(() => {
-      expect(screen.getByText("2 statefulset(s)")).toBeInTheDocument();
+      expect(screen.getByText("2 daemonset(s)")).toBeInTheDocument();
     });
   });
 
-  it("filters statefulsets by search", async () => {
+  it("filters daemonsets by search", async () => {
     render(<App />);
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
+      expect(screen.getByText("DaemonSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("StatefulSets"));
+    await user.click(screen.getByText("DaemonSets"));
 
     await waitFor(() => {
-      expect(screen.getByText("mysql-primary")).toBeInTheDocument();
+      expect(screen.getByText("node-exporter")).toBeInTheDocument();
     });
 
     await user.type(
-      screen.getByPlaceholderText("Search statefulsets..."),
-      "mysql",
+      screen.getByPlaceholderText("Search daemonsets..."),
+      "node",
     );
 
     await waitFor(() => {
-      expect(screen.getByText("mysql-primary")).toBeInTheDocument();
-      expect(screen.queryByText("redis-cluster")).not.toBeInTheDocument();
+      expect(screen.getByText("node-exporter")).toBeInTheDocument();
+      expect(screen.queryByText("filebeat")).not.toBeInTheDocument();
     });
   });
 
-  it("shows empty state when no statefulsets found", async () => {
-    mockBindings.GetStatefulSets.mockResolvedValue([]);
+  it("shows empty state when no daemonsets found", async () => {
+    mockBindings.GetDaemonSets.mockResolvedValue([]);
 
     render(<App />);
 
     const user = userEvent.setup();
     await waitFor(() => {
-      expect(screen.getByText("StatefulSets")).toBeInTheDocument();
+      expect(screen.getByText("DaemonSets")).toBeInTheDocument();
     });
-    await user.click(screen.getByText("StatefulSets"));
+    await user.click(screen.getByText("DaemonSets"));
 
     await waitFor(() => {
-      expect(screen.getByText("No statefulsets found.")).toBeInTheDocument();
+      expect(screen.getByText("No daemonsets found.")).toBeInTheDocument();
     });
   });
 });

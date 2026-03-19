@@ -196,6 +196,30 @@ func (a *App) GetStatefulSetEvents(namespace, name string) ([]kube.EventInfo, er
 	return a.client.GetStatefulSetEvents(a.ctx, namespace, name)
 }
 
+// GetDaemonSets returns daemonsets, optionally filtered by namespace ("" for all namespaces).
+func (a *App) GetDaemonSets(namespace string) ([]kube.DaemonSetInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetDaemonSets(a.ctx, namespace)
+}
+
+// GetDaemonSetDetail returns detailed information about a single daemonset.
+func (a *App) GetDaemonSetDetail(namespace, name string) (*kube.DaemonSetDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetDaemonSetDetail(a.ctx, namespace, name)
+}
+
+// GetDaemonSetEvents returns events related to a specific daemonset.
+func (a *App) GetDaemonSetEvents(namespace, name string) ([]kube.EventInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetDaemonSetEvents(a.ctx, namespace, name)
+}
+
 // GetNodes returns all nodes in the connected cluster.
 func (a *App) GetNodes() ([]kube.NodeInfo, error) {
 	if a.client == nil {
