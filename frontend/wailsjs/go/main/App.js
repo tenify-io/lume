@@ -30,6 +30,26 @@ export function GetNamespaces() {
   return window['go']['main']['App']['GetNamespaces']();
 }
 
+export function GetNodeDetail(arg1) {
+  return window['go']['main']['App']['GetNodeDetail'](arg1);
+}
+
+export function GetNodeEvents(arg1) {
+  return window['go']['main']['App']['GetNodeEvents'](arg1);
+}
+
+export function GetNodes() {
+  return window['go']['main']['App']['GetNodes']();
+}
+
+export function GetPodDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetPodDetail'](arg1, arg2);
+}
+
+export function GetPodEvents(arg1, arg2) {
+  return window['go']['main']['App']['GetPodEvents'](arg1, arg2);
+}
+
 export function GetPods(arg1) {
   return window['go']['main']['App']['GetPods'](arg1);
 }
@@ -44,4 +64,12 @@ export function SetContextAlias(arg1, arg2) {
 
 export function SetPreference(arg1, arg2) {
   return window['go']['main']['App']['SetPreference'](arg1, arg2);
+}
+
+export function UnwatchAll() {
+  return window['go']['main']['App']['UnwatchAll']();
+}
+
+export function WatchPods(arg1) {
+  return window['go']['main']['App']['WatchPods'](arg1);
 }

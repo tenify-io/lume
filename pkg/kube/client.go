@@ -15,6 +15,11 @@ type Client struct {
 	clientset *kubernetes.Clientset
 }
 
+// Clientset returns the underlying Kubernetes clientset.
+func (c *Client) Clientset() kubernetes.Interface {
+	return c.clientset
+}
+
 // GetContexts returns all available kubeconfig contexts.
 func GetContexts() ([]Context, error) {
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
@@ -81,74 +86,4 @@ func (c *Client) GetNamespaces(ctx context.Context) ([]string, error) {
 	}
 	sort.Strings(namespaces)
 	return namespaces, nil
-}
-
-// GetPods returns pods, optionally filtered by namespace ("" for all namespaces).
-func (c *Client) GetPods(ctx context.Context, namespace string) ([]PodInfo, error) {
-	if namespace == "" {
-		namespace = metav1.NamespaceAll
-	}
-
-	podList, err := c.clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("failed to list pods: %w", err)
-	}
-
-	var pods []PodInfo
-	for _, pod := range podList.Items {
-		readyCount := 0
-		totalCount := len(pod.Spec.Containers)
-		var totalRestarts int32
-		var containers []ContainerInfo
-
-		for _, cs := range pod.Status.ContainerStatuses {
-			totalRestarts += cs.RestartCount
-			state := "unknown"
-			switch {
-			case cs.State.Running != nil:
-				state = "running"
-			case cs.State.Waiting != nil:
-				state = cs.State.Waiting.Reason
-			case cs.State.Terminated != nil:
-				state = cs.State.Terminated.Reason
-			}
-			if cs.Ready {
-				readyCount++
-			}
-			containers = append(containers, ContainerInfo{
-				Name:  cs.Name,
-				Image: cs.Image,
-				Ready: cs.Ready,
-				State: state,
-			})
-		}
-
-		age := ""
-		if !pod.CreationTimestamp.IsZero() {
-			duration := metav1.Now().Sub(pod.CreationTimestamp.Time)
-			age = FormatDuration(duration)
-		}
-
-		pods = append(pods, PodInfo{
-			Name:       pod.Name,
-			Namespace:  pod.Namespace,
-			Status:     string(pod.Status.Phase),
-			Ready:      fmt.Sprintf("%d/%d", readyCount, totalCount),
-			Restarts:   totalRestarts,
-			Age:        age,
-			Labels:     pod.Labels,
-			NodeName:   pod.Spec.NodeName,
-			IP:         pod.Status.PodIP,
-			Containers: containers,
-		})
-	}
-
-	sort.Slice(pods, func(i, j int) bool {
-		if pods[i].Namespace != pods[j].Namespace {
-			return pods[i].Namespace < pods[j].Namespace
-		}
-		return pods[i].Name < pods[j].Name
-	})
-
-	return pods, nil
 }

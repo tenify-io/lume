@@ -7,24 +7,14 @@ type Context struct {
 	User    string `json:"user"`
 }
 
-// PodInfo represents a pod.
-type PodInfo struct {
-	Name       string            `json:"name"`
-	Namespace  string            `json:"namespace"`
-	Status     string            `json:"status"`
-	Ready      string            `json:"ready"`
-	Restarts   int32             `json:"restarts"`
-	Age        string            `json:"age"`
-	Labels     map[string]string `json:"labels"`
-	NodeName   string            `json:"nodeName"`
-	IP         string            `json:"ip"`
-	Containers []ContainerInfo   `json:"containers"`
-}
-
-// ContainerInfo represents a container within a pod.
-type ContainerInfo struct {
-	Name  string `json:"name"`
-	Image string `json:"image"`
-	Ready bool   `json:"ready"`
-	State string `json:"state"`
+// EventInfo represents a Kubernetes event.
+type EventInfo struct {
+	Type           string `json:"type"`
+	Reason         string `json:"reason"`
+	Message        string `json:"message"`
+	Source         string `json:"source"`
+	Count          int32  `json:"count"`
+	FirstTimestamp string `json:"firstTimestamp"`
+	LastTimestamp  string `json:"lastTimestamp"`
+	Age            string `json:"age"`
 }
