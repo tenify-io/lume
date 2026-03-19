@@ -158,6 +158,206 @@ export namespace kube {
 	        this.age = source["age"];
 	    }
 	}
+	export class NodeAddress {
+	    type: string;
+	    address: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new NodeAddress(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.type = source["type"];
+	        this.address = source["address"];
+	    }
+	}
+	export class NodeCondition {
+	    type: string;
+	    status: string;
+	    lastTransitionTime: string;
+	    reason: string;
+	    message: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new NodeCondition(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.type = source["type"];
+	        this.status = source["status"];
+	        this.lastTransitionTime = source["lastTransitionTime"];
+	        this.reason = source["reason"];
+	        this.message = source["message"];
+	    }
+	}
+	export class NodeImage {
+	    names: string[];
+	    sizeBytes: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new NodeImage(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.names = source["names"];
+	        this.sizeBytes = source["sizeBytes"];
+	    }
+	}
+	export class NodeTaint {
+	    key: string;
+	    value: string;
+	    effect: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new NodeTaint(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.key = source["key"];
+	        this.value = source["value"];
+	        this.effect = source["effect"];
+	    }
+	}
+	export class NodeSystemInfo {
+	    machineID: string;
+	    kernelVersion: string;
+	    osImage: string;
+	    containerRuntimeVersion: string;
+	    kubeletVersion: string;
+	    operatingSystem: string;
+	    architecture: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new NodeSystemInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.machineID = source["machineID"];
+	        this.kernelVersion = source["kernelVersion"];
+	        this.osImage = source["osImage"];
+	        this.containerRuntimeVersion = source["containerRuntimeVersion"];
+	        this.kubeletVersion = source["kubeletVersion"];
+	        this.operatingSystem = source["operatingSystem"];
+	        this.architecture = source["architecture"];
+	    }
+	}
+	export class NodeResources {
+	    cpu: string;
+	    memory: string;
+	    pods: string;
+	    ephemeralStorage: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new NodeResources(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cpu = source["cpu"];
+	        this.memory = source["memory"];
+	        this.pods = source["pods"];
+	        this.ephemeralStorage = source["ephemeralStorage"];
+	    }
+	}
+	export class NodeDetail {
+	    name: string;
+	    uid: string;
+	    creationTimestamp: string;
+	    labels: Record<string, string>;
+	    annotations: Record<string, string>;
+	    status: string;
+	    roles: string;
+	    age: string;
+	    addresses: NodeAddress[];
+	    conditions: NodeCondition[];
+	    capacity: NodeResources;
+	    allocatable: NodeResources;
+	    systemInfo: NodeSystemInfo;
+	    taints: NodeTaint[];
+	    podCIDR: string;
+	    images: NodeImage[];
+	
+	    static createFrom(source: any = {}) {
+	        return new NodeDetail(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.uid = source["uid"];
+	        this.creationTimestamp = source["creationTimestamp"];
+	        this.labels = source["labels"];
+	        this.annotations = source["annotations"];
+	        this.status = source["status"];
+	        this.roles = source["roles"];
+	        this.age = source["age"];
+	        this.addresses = this.convertValues(source["addresses"], NodeAddress);
+	        this.conditions = this.convertValues(source["conditions"], NodeCondition);
+	        this.capacity = this.convertValues(source["capacity"], NodeResources);
+	        this.allocatable = this.convertValues(source["allocatable"], NodeResources);
+	        this.systemInfo = this.convertValues(source["systemInfo"], NodeSystemInfo);
+	        this.taints = this.convertValues(source["taints"], NodeTaint);
+	        this.podCIDR = source["podCIDR"];
+	        this.images = this.convertValues(source["images"], NodeImage);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	
+	export class NodeInfo {
+	    name: string;
+	    status: string;
+	    roles: string;
+	    age: string;
+	    kubeletVersion: string;
+	    internalIP: string;
+	    externalIP: string;
+	    osImage: string;
+	    containerRuntime: string;
+	    labels: Record<string, string>;
+	
+	    static createFrom(source: any = {}) {
+	        return new NodeInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.status = source["status"];
+	        this.roles = source["roles"];
+	        this.age = source["age"];
+	        this.kubeletVersion = source["kubeletVersion"];
+	        this.internalIP = source["internalIP"];
+	        this.externalIP = source["externalIP"];
+	        this.osImage = source["osImage"];
+	        this.containerRuntime = source["containerRuntime"];
+	        this.labels = source["labels"];
+	    }
+	}
+	
+	
+	
 	export class PodCondition {
 	    type: string;
 	    status: string;

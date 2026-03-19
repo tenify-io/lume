@@ -9,15 +9,28 @@ const mockBindings = vi.hoisted(() => ({
   ConnectToContext: vi.fn().mockResolvedValue(undefined),
   GetNamespaces: vi.fn().mockResolvedValue([]),
   GetPods: vi.fn().mockResolvedValue([]),
+  GetNodes: vi.fn().mockResolvedValue([]),
+  GetNodeDetail: vi.fn().mockResolvedValue(null),
+  GetNodeEvents: vi.fn().mockResolvedValue([]),
+  GetPodDetail: vi.fn().mockResolvedValue(null),
+  GetPodEvents: vi.fn().mockResolvedValue([]),
   GetPreference: vi.fn().mockResolvedValue(null),
   SetPreference: vi.fn().mockResolvedValue(undefined),
   GetContextAliases: vi.fn().mockResolvedValue({}),
   SetContextAlias: vi.fn().mockResolvedValue(undefined),
   DeletePreference: vi.fn().mockResolvedValue(undefined),
   GetAllPreferences: vi.fn().mockResolvedValue({}),
+  WatchPods: vi.fn().mockResolvedValue(undefined),
+  UnwatchAll: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("../../wailsjs/go/main/App", () => mockBindings);
+
+const mockRuntime = vi.hoisted(() => ({
+  EventsOn: vi.fn().mockReturnValue(() => {}),
+}));
+
+vi.mock("../../wailsjs/runtime/runtime", () => mockRuntime);
 
 const sampleContexts = [
   { name: "arn:aws:eks:us-east-1:123:cluster/prod", cluster: "prod-cluster", user: "admin" },
@@ -34,6 +47,7 @@ beforeEach(() => {
   mockBindings.ConnectToContext.mockResolvedValue(undefined);
   mockBindings.GetNamespaces.mockResolvedValue([]);
   mockBindings.GetPods.mockResolvedValue([]);
+  mockBindings.GetNodes.mockResolvedValue([]);
   mockBindings.SetPreference.mockResolvedValue(undefined);
   mockBindings.SetContextAlias.mockResolvedValue(undefined);
 });
@@ -76,9 +90,10 @@ describe("App", () => {
     await waitFor(() => {
       expect(mockBindings.ConnectToContext).toHaveBeenCalledWith("dev-local");
     });
-    // Should show dashboard (namespace label visible in toolbar)
+    // Should show the sidebar with Pods/Nodes navigation
     await waitFor(() => {
-      expect(screen.getByText("Namespace:")).toBeInTheDocument();
+      expect(screen.getByText("Pods")).toBeInTheDocument();
+      expect(screen.getByText("Nodes")).toBeInTheDocument();
     });
   });
 
@@ -149,8 +164,29 @@ describe("App", () => {
     render(<App />);
     await waitFor(() => {
       expect(
-        screen.getByText("No Kubernetes contexts found. Check your kubeconfig.")
+        screen.getByText("No Kubernetes contexts found. Check your kubeconfig."),
       ).toBeInTheDocument();
+    });
+  });
+
+  it("navigates to nodes view when clicking Nodes in sidebar", async () => {
+    mockBindings.GetContexts.mockResolvedValue(sampleContexts);
+    mockBindings.GetPreference.mockResolvedValue("dev-local");
+    mockBindings.GetNamespaces.mockResolvedValue(["default"]);
+    mockBindings.GetPods.mockResolvedValue([]);
+    mockBindings.GetNodes.mockResolvedValue([]);
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Nodes")).toBeInTheDocument();
+    });
+
+    const user = userEvent.setup();
+    await user.click(screen.getByText("Nodes"));
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText("Search nodes...")).toBeInTheDocument();
     });
   });
 });

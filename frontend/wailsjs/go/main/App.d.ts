@@ -16,6 +16,12 @@ export function GetCurrentContext():Promise<string>;
 
 export function GetNamespaces():Promise<Array<string>>;
 
+export function GetNodeDetail(arg1:string):Promise<kube.NodeDetail>;
+
+export function GetNodeEvents(arg1:string):Promise<Array<kube.EventInfo>>;
+
+export function GetNodes():Promise<Array<kube.NodeInfo>>;
+
 export function GetPodDetail(arg1:string,arg2:string):Promise<kube.PodDetail>;
 
 export function GetPodEvents(arg1:string,arg2:string):Promise<Array<kube.EventInfo>>;
@@ -27,3 +33,7 @@ export function GetPreference(arg1:string):Promise<any>;
 export function SetContextAlias(arg1:string,arg2:string):Promise<void>;
 
 export function SetPreference(arg1:string,arg2:any):Promise<void>;
+
+export function UnwatchAll():Promise<void>;
+
+export function WatchPods(arg1:string):Promise<void>;

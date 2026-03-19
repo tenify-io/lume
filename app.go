@@ -6,13 +6,15 @@ import (
 
 	"github.com/tenify-io/lume/pkg/kube"
 	"github.com/tenify-io/lume/pkg/preferences"
+	wailsrt "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
 type App struct {
-	ctx    context.Context
-	client *kube.Client
-	prefs  *preferences.Preferences
+	ctx     context.Context
+	client  *kube.Client
+	prefs   *preferences.Preferences
+	watcher *kube.Watcher
 }
 
 // NewApp creates a new App application struct
@@ -42,11 +44,21 @@ func (a *App) GetCurrentContext() (string, error) {
 
 // ConnectToContext creates a Kubernetes client for the given context name.
 func (a *App) ConnectToContext(contextName string) error {
+	if a.watcher != nil {
+		a.watcher.Stop()
+		a.watcher = nil
+	}
+
 	client, err := kube.Connect(contextName)
 	if err != nil {
 		return err
 	}
 	a.client = client
+
+	a.watcher = kube.NewWatcher(client.Clientset(), func(eventName string, data ...interface{}) {
+		wailsrt.EventsEmit(a.ctx, eventName, data...)
+	})
+
 	return nil
 }
 
@@ -80,6 +92,47 @@ func (a *App) GetPodEvents(namespace, name string) ([]kube.EventInfo, error) {
 		return nil, fmt.Errorf("not connected to a cluster")
 	}
 	return a.client.GetPodEvents(a.ctx, namespace, name)
+}
+
+// GetNodes returns all nodes in the connected cluster.
+func (a *App) GetNodes() ([]kube.NodeInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetNodes(a.ctx)
+}
+
+// GetNodeDetail returns detailed information about a single node.
+func (a *App) GetNodeDetail(name string) (*kube.NodeDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetNodeDetail(a.ctx, name)
+}
+
+// GetNodeEvents returns events related to a specific node.
+func (a *App) GetNodeEvents(name string) ([]kube.EventInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetNodeEvents(a.ctx, name)
+}
+
+// WatchPods starts watching pods in the given namespace for real-time updates.
+// Pass "" to watch all namespaces.
+func (a *App) WatchPods(namespace string) error {
+	if a.watcher == nil {
+		return fmt.Errorf("not connected to a cluster")
+	}
+	a.watcher.Start(a.ctx, namespace)
+	return nil
+}
+
+// UnwatchAll stops all active resource watches.
+func (a *App) UnwatchAll() {
+	if a.watcher != nil {
+		a.watcher.Stop()
+	}
 }
 
 // GetPreference returns a stored preference value by key.

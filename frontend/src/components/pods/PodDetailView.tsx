@@ -1,120 +1,19 @@
 import { useEffect, useState } from "react";
-import { GetPodDetail, GetPodEvents } from "../../wailsjs/go/main/App";
+import { GetPodDetail, GetPodEvents } from "../../../wailsjs/go/main/App";
+import { EventsOn } from "../../../wailsjs/runtime/runtime";
+import { kube } from "../../../wailsjs/go/models";
 import { Button } from "@/components/ui/button";
-
-interface ContainerPort {
-  name: string;
-  containerPort: number;
-  protocol: string;
-}
-
-interface ContainerResource {
-  cpuRequest: string;
-  cpuLimit: string;
-  memoryRequest: string;
-  memoryLimit: string;
-}
-
-interface VolumeMount {
-  name: string;
-  mountPath: string;
-  readOnly: boolean;
-}
-
-interface ContainerDetail {
-  name: string;
-  image: string;
-  ready: boolean;
-  state: string;
-  stateDetail: string;
-  restartCount: number;
-  ports: ContainerPort[];
-  resources: ContainerResource;
-  volumeMounts: VolumeMount[];
-}
-
-interface PodVolume {
-  name: string;
-  type: string;
-  source: string;
-}
-
-interface PodCondition {
-  type: string;
-  status: string;
-  lastTransitionTime: string;
-  reason: string;
-  message: string;
-}
-
-interface PodDetail {
-  name: string;
-  namespace: string;
-  uid: string;
-  creationTimestamp: string;
-  labels: Record<string, string>;
-  annotations: Record<string, string>;
-  status: string;
-  ready: string;
-  restarts: number;
-  age: string;
-  nodeName: string;
-  ip: string;
-  hostIP: string;
-  startTime: string;
-  qosClass: string;
-  serviceAccountName: string;
-  restartPolicy: string;
-  conditions: PodCondition[];
-  initContainers: ContainerDetail[];
-  containers: ContainerDetail[];
-  volumes: PodVolume[];
-}
-
-interface EventInfo {
-  type: string;
-  reason: string;
-  message: string;
-  source: string;
-  count: number;
-  firstTimestamp: string;
-  lastTimestamp: string;
-  age: string;
-}
+import { SectionHeading } from "@/components/shared/SectionHeading";
+import { MetadataRow } from "@/components/shared/MetadataRow";
+import { StatusBadge } from "@/components/shared/StatusBadge";
+import { KeyValueList } from "@/components/shared/KeyValueList";
+import { ConditionsTable } from "@/components/shared/ConditionsTable";
+import { EventsTable } from "@/components/shared/EventsTable";
+import { useNavigation } from "@/navigation";
 
 interface PodDetailViewProps {
   namespace: string;
   name: string;
-  onBack: () => void;
-}
-
-function statusClass(status: string): string {
-  switch (status.toLowerCase()) {
-    case "running":
-      return "bg-emerald-950 text-emerald-400";
-    case "succeeded":
-      return "bg-sky-950 text-sky-400";
-    case "pending":
-      return "bg-amber-950 text-amber-400";
-    case "failed":
-      return "bg-red-950 text-red-400";
-    default:
-      return "bg-zinc-800 text-zinc-400";
-  }
-}
-
-function conditionStatusClass(status: string): string {
-  return status === "True"
-    ? "text-emerald-400"
-    : status === "False"
-      ? "text-red-400"
-      : "text-zinc-400";
-}
-
-function eventTypeClass(type: string): string {
-  return type === "Warning"
-    ? "text-amber-400"
-    : "text-zinc-400";
 }
 
 function containerStateClass(state: string): string {
@@ -124,36 +23,16 @@ function containerStateClass(state: string): string {
   return "text-amber-400";
 }
 
-const SectionHeading = ({ children }: { children: React.ReactNode }) => (
-  <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wide mb-2">
-    {children}
-  </h3>
-);
-
-const MetadataRow = ({
-  label,
-  value,
-}: {
-  label: string;
-  value: React.ReactNode;
-}) =>
-  value ? (
-    <div className="flex gap-2 py-1">
-      <span className="text-zinc-500 min-w-[140px] shrink-0">{label}</span>
-      <span className="text-zinc-200 break-all">{value}</span>
-    </div>
-  ) : null;
-
 function ContainerList({
   containers,
   expandedContainers,
   onToggle,
   hasResources,
 }: {
-  containers: ContainerDetail[];
+  containers: kube.ContainerDetail[];
   expandedContainers: Set<string>;
   onToggle: (name: string) => void;
-  hasResources: (r: ContainerResource) => string;
+  hasResources: (r: kube.ContainerResource) => string;
 }) {
   return (
     <div className="flex flex-col gap-2">
@@ -314,17 +193,17 @@ function ContainerList({
   );
 }
 
-export default function PodDetailView({
+export function PodDetailView({
   namespace,
   name,
-  onBack,
 }: PodDetailViewProps) {
-  const [pod, setPod] = useState<PodDetail | null>(null);
-  const [events, setEvents] = useState<EventInfo[]>([]);
+  const { goBack } = useNavigation();
+  const [pod, setPod] = useState<kube.PodDetail | null>(null);
+  const [events, setEvents] = useState<kube.EventInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expandedContainers, setExpandedContainers] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   useEffect(() => {
@@ -345,6 +224,35 @@ export default function PodDetailView({
       }
     }
     load();
+  }, [namespace, name]);
+
+  // Live updates — refetch detail when this pod changes
+  useEffect(() => {
+    const cancel = EventsOn(
+      "pods:changed",
+      (event: { type: string; data: { name: string; namespace: string } }) => {
+        if (event.data.name !== name || event.data.namespace !== namespace)
+          return;
+
+        if (event.type === "DELETED") {
+          setError("This pod has been deleted");
+          setPod(null);
+          return;
+        }
+
+        Promise.all([
+          GetPodDetail(namespace, name),
+          GetPodEvents(namespace, name),
+        ])
+          .then(([podDetail, podEvents]) => {
+            setPod(podDetail);
+            setEvents(podEvents || []);
+          })
+          .catch(() => {});
+      },
+    );
+
+    return () => cancel();
   }, [namespace, name]);
 
   function toggleContainer(containerName: string) {
@@ -371,7 +279,7 @@ export default function PodDetailView({
     return (
       <div className="flex flex-col items-center justify-center flex-1 gap-3">
         <p className="text-red-400">{error}</p>
-        <Button variant="secondary" onClick={onBack}>
+        <Button variant="secondary" onClick={goBack}>
           Back to Pods
         </Button>
       </div>
@@ -380,7 +288,7 @@ export default function PodDetailView({
 
   if (!pod) return null;
 
-  const hasResources = (r: ContainerResource) =>
+  const hasResources = (r: kube.ContainerResource) =>
     r.cpuRequest || r.cpuLimit || r.memoryRequest || r.memoryLimit;
 
   return (
@@ -388,7 +296,7 @@ export default function PodDetailView({
       <div className="px-6 py-5 flex flex-col gap-6">
         {/* Back */}
         <div>
-          <Button variant="ghost" size="sm" onClick={onBack}>
+          <Button variant="ghost" size="sm" onClick={goBack}>
             &larr; Back
           </Button>
         </div>
@@ -405,11 +313,7 @@ export default function PodDetailView({
                 {pod.namespace}
               </p>
             </div>
-            <span
-              className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold shrink-0 ${statusClass(pod.status)}`}
-            >
-              {pod.status}
-            </span>
+            <StatusBadge status={pod.status} />
           </div>
 
           {/* Quick stats */}
@@ -483,33 +387,13 @@ export default function PodDetailView({
             {pod.labels && Object.keys(pod.labels).length > 0 && (
               <div>
                 <SectionHeading>Labels</SectionHeading>
-                <div className="flex flex-col gap-1">
-                  {Object.entries(pod.labels).map(([k, v]) => (
-                    <div
-                      key={k}
-                      className="flex gap-2 text-[12px] font-mono leading-relaxed"
-                    >
-                      <span className="text-zinc-500">{k}</span>
-                      <span className="text-zinc-400">{v}</span>
-                    </div>
-                  ))}
-                </div>
+                <KeyValueList entries={pod.labels} />
               </div>
             )}
             {pod.annotations && Object.keys(pod.annotations).length > 0 && (
               <div>
                 <SectionHeading>Annotations</SectionHeading>
-                <div className="flex flex-col gap-1">
-                  {Object.entries(pod.annotations).map(([k, v]) => (
-                    <div
-                      key={k}
-                      className="flex gap-2 text-[12px] font-mono leading-relaxed"
-                    >
-                      <span className="text-zinc-500 shrink-0">{k}</span>
-                      <span className="text-zinc-400 break-all">{v}</span>
-                    </div>
-                  ))}
-                </div>
+                <KeyValueList entries={pod.annotations} />
               </div>
             )}
           </section>
@@ -519,47 +403,7 @@ export default function PodDetailView({
         {pod.conditions && pod.conditions.length > 0 && (
           <section>
             <SectionHeading>Conditions</SectionHeading>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-[13px]">
-                <thead>
-                  <tr>
-                    {["Type", "Status", "Last Transition", "Reason", "Message"].map(
-                      (h) => (
-                        <th
-                          key={h}
-                          className="px-3 py-1.5 text-left text-[11px] font-semibold text-zinc-600 bg-zinc-900"
-                        >
-                          {h}
-                        </th>
-                      )
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {pod.conditions.map((c) => (
-                    <tr key={c.type}>
-                      <td className="px-3 py-1.5 border-b border-zinc-900 font-medium">
-                        {c.type}
-                      </td>
-                      <td
-                        className={`px-3 py-1.5 border-b border-zinc-900 font-semibold ${conditionStatusClass(c.status)}`}
-                      >
-                        {c.status}
-                      </td>
-                      <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-400 whitespace-nowrap">
-                        {c.lastTransitionTime}
-                      </td>
-                      <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-400">
-                        {c.reason}
-                      </td>
-                      <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-400">
-                        {c.message}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <ConditionsTable conditions={pod.conditions} />
           </section>
         )}
 
@@ -632,62 +476,10 @@ export default function PodDetailView({
         {/* Events */}
         <section>
           <SectionHeading>Events ({events.length})</SectionHeading>
-          {events.length === 0 ? (
-            <p className="text-zinc-600 text-[13px]">
-              No events found for this pod.
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-[13px]">
-                <thead>
-                  <tr>
-                    {[
-                      "Type",
-                      "Reason",
-                      "Age",
-                      "Source",
-                      "Message",
-                    ].map((h) => (
-                      <th
-                        key={h}
-                        className="px-3 py-1.5 text-left text-[11px] font-semibold text-zinc-600 bg-zinc-900 whitespace-nowrap"
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {events.map((e, i) => (
-                    <tr key={i}>
-                      <td
-                        className={`px-3 py-1.5 border-b border-zinc-900 font-semibold whitespace-nowrap ${eventTypeClass(e.type)}`}
-                      >
-                        {e.type}
-                        {e.count > 1 && (
-                          <span className="text-zinc-600 font-normal ml-1">
-                            x{e.count}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-3 py-1.5 border-b border-zinc-900 whitespace-nowrap">
-                        {e.reason}
-                      </td>
-                      <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-400 whitespace-nowrap">
-                        {e.age}
-                      </td>
-                      <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-500 whitespace-nowrap font-mono text-xs">
-                        {e.source}
-                      </td>
-                      <td className="px-3 py-1.5 border-b border-zinc-900 text-zinc-300">
-                        {e.message}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <EventsTable
+            events={events}
+            emptyMessage="No events found for this pod."
+          />
         </section>
       </div>
     </div>

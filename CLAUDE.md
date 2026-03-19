@@ -20,6 +20,23 @@ Kubernetes dashboard desktop app by [Tenify](https://github.com/tenify-io). Wail
 - **Path aliases**: `@/*` maps to `frontend/src/*`
 - **Fonts**: Geist Variable (installed via `@fontsource-variable/geist`)
 
+## Backend File Organization
+
+The `pkg/kube/` package organizes code **per-resource**:
+- `client.go` — Client struct, Connect, GetContexts, GetCurrentContext, GetNamespaces (core/shared)
+- `client_<resource>.go` — List, Detail, and Events methods for a specific resource (e.g., `client_pods.go`, `client_nodes.go`)
+- `types.go` — Shared types (Context, EventInfo)
+- `types_<resource>.go` — Info, Detail, and supporting types for a specific resource
+- `convert.go` — Shared conversion helpers (FormatDuration)
+- `convert_<resource>.go` — K8s native type → app type converters for a specific resource
+- `watcher.go` — Watcher struct and generic registration mechanism
+
+When adding a new resource, create `client_<resource>.go`, `types_<resource>.go`, and `convert_<resource>.go` rather than appending to existing files.
+
+## Frontend Types
+
+Always import types from the Wails-generated `wailsjs/go/models.ts` (e.g., `kube.PodInfo`, `kube.NodeInfo`). Do **not** re-declare interfaces locally in components — this causes type drift when Go types change.
+
 ## Preferences
 
 - JSON file at `~/.config/lume/preferences.json` (via `os.UserConfigDir()`)
