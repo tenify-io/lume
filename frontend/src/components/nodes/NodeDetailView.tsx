@@ -7,6 +7,8 @@ import { KeyValueList } from "@/components/shared/KeyValueList";
 import { ConditionsTable } from "@/components/shared/ConditionsTable";
 import { EventsTable } from "@/components/shared/EventsTable";
 import { ResourceDetailView } from "@/components/shared/ResourceDetailView";
+import { ResourceToolbar, ToolbarAction } from "@/components/shared/ResourceToolbar";
+import { Pencil, Trash2, Copy } from "lucide-react";
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return "0 B";
@@ -18,8 +20,15 @@ function formatBytes(bytes: number): string {
 export function NodeDetailView({ name }: { name: string }) {
   const [showImages, setShowImages] = useState(false);
 
+  const actions: ToolbarAction[] = [
+    { id: "edit", label: "Edit YAML", icon: Pencil, onClick: () => {}, group: "primary" },
+    { id: "copy", label: "Copy Name", icon: Copy, onClick: () => navigator.clipboard.writeText(name), group: "primary" },
+    { id: "delete", label: "Delete", icon: Trash2, onClick: () => {}, variant: "destructive" as const, group: "danger" },
+  ];
+
   return (
     <ResourceDetailView<kube.NodeDetail>
+      toolbar={<ResourceToolbar actions={actions} />}
       name={name}
       fetchDetail={() => GetNodeDetail(name)}
       fetchEvents={() => GetNodeEvents(name)}

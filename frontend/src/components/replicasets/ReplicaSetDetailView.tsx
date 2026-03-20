@@ -9,6 +9,8 @@ import { KeyValueList } from "@/components/shared/KeyValueList";
 import { ConditionsTable } from "@/components/shared/ConditionsTable";
 import { EventsTable } from "@/components/shared/EventsTable";
 import { ResourceDetailView } from "@/components/shared/ResourceDetailView";
+import { ResourceToolbar, ToolbarAction } from "@/components/shared/ResourceToolbar";
+import { Pencil, Trash2, Copy, Scaling } from "lucide-react";
 import { useNavigation } from "@/navigation";
 
 function replicaSetStatus(rs: kube.ReplicaSetDetail): string {
@@ -27,6 +29,13 @@ export function ReplicaSetDetailView({
 }) {
   const { navigate } = useNavigation();
 
+  const actions: ToolbarAction[] = [
+    { id: "edit", label: "Edit YAML", icon: Pencil, onClick: () => {}, group: "primary" },
+    { id: "scale", label: "Scale", icon: Scaling, onClick: () => {}, group: "primary" },
+    { id: "copy", label: "Copy Name", icon: Copy, onClick: () => navigator.clipboard.writeText(name), group: "primary" },
+    { id: "delete", label: "Delete", icon: Trash2, onClick: () => {}, variant: "destructive", group: "danger" },
+  ];
+
   return (
     <ResourceDetailView<kube.ReplicaSetDetail>
       namespace={namespace}
@@ -35,6 +44,7 @@ export function ReplicaSetDetailView({
       fetchEvents={() => GetReplicaSetEvents(namespace, name)}
       eventChannel="replicasets:changed"
       resourceLabel="replicaset"
+      toolbar={<ResourceToolbar actions={actions} />}
     >
       {(rs, events) => {
         const status = replicaSetStatus(rs);

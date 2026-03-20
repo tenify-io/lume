@@ -3,6 +3,8 @@ import { kube } from "../../../wailsjs/go/models";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { KeyValueList } from "@/components/shared/KeyValueList";
 import { ResourceDetailView } from "@/components/shared/ResourceDetailView";
+import { ResourceToolbar, ToolbarAction } from "@/components/shared/ResourceToolbar";
+import { Pencil, Trash2, Copy } from "lucide-react";
 
 function formatPeerSelector(
   selector: Record<string, string> | null | undefined,
@@ -21,8 +23,15 @@ export function NetworkPolicyDetailView({
   namespace: string;
   name: string;
 }) {
+  const actions: ToolbarAction[] = [
+    { id: "edit", label: "Edit YAML", icon: Pencil, onClick: () => {}, group: "primary" },
+    { id: "copy", label: "Copy Name", icon: Copy, onClick: () => navigator.clipboard.writeText(name), group: "primary" },
+    { id: "delete", label: "Delete", icon: Trash2, onClick: () => {}, variant: "destructive" as const, group: "danger" },
+  ];
+
   return (
     <ResourceDetailView<kube.NetworkPolicyDetail>
+      toolbar={<ResourceToolbar actions={actions} />}
       namespace={namespace}
       name={name}
       fetchDetail={() => GetNetworkPolicyDetail(namespace, name)}

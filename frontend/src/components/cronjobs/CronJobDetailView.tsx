@@ -8,6 +8,8 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { KeyValueList } from "@/components/shared/KeyValueList";
 import { EventsTable } from "@/components/shared/EventsTable";
 import { ResourceDetailView } from "@/components/shared/ResourceDetailView";
+import { ResourceToolbar, ToolbarAction } from "@/components/shared/ResourceToolbar";
+import { Pencil, Trash2, Copy } from "lucide-react";
 
 function cronJobStatus(cj: kube.CronJobDetail): string {
   if (cj.active > 0) return "Active";
@@ -22,8 +24,15 @@ export function CronJobDetailView({
   namespace: string;
   name: string;
 }) {
+  const actions: ToolbarAction[] = [
+    { id: "edit", label: "Edit YAML", icon: Pencil, onClick: () => {}, group: "primary" },
+    { id: "copy", label: "Copy Name", icon: Copy, onClick: () => navigator.clipboard.writeText(name), group: "primary" },
+    { id: "delete", label: "Delete", icon: Trash2, onClick: () => {}, variant: "destructive" as const, group: "danger" },
+  ];
+
   return (
     <ResourceDetailView<kube.CronJobDetail>
+      toolbar={<ResourceToolbar actions={actions} />}
       namespace={namespace}
       name={name}
       fetchDetail={() => GetCronJobDetail(namespace, name)}

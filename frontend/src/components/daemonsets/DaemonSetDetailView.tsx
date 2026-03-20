@@ -9,6 +9,8 @@ import { KeyValueList } from "@/components/shared/KeyValueList";
 import { ConditionsTable } from "@/components/shared/ConditionsTable";
 import { EventsTable } from "@/components/shared/EventsTable";
 import { ResourceDetailView } from "@/components/shared/ResourceDetailView";
+import { ResourceToolbar, ToolbarAction } from "@/components/shared/ResourceToolbar";
+import { Pencil, Trash2, Copy, RotateCcw } from "lucide-react";
 
 function daemonSetStatus(ds: kube.DaemonSetDetail): string {
   if (ds.desired === 0) return "Scaled Down";
@@ -24,6 +26,13 @@ export function DaemonSetDetailView({
   namespace: string;
   name: string;
 }) {
+  const actions: ToolbarAction[] = [
+    { id: "edit", label: "Edit YAML", icon: Pencil, onClick: () => {}, group: "primary" },
+    { id: "restart", label: "Restart", icon: RotateCcw, onClick: () => {}, group: "primary" },
+    { id: "copy", label: "Copy Name", icon: Copy, onClick: () => navigator.clipboard.writeText(name), group: "primary" },
+    { id: "delete", label: "Delete", icon: Trash2, onClick: () => {}, variant: "destructive", group: "danger" },
+  ];
+
   return (
     <ResourceDetailView<kube.DaemonSetDetail>
       namespace={namespace}
@@ -32,6 +41,7 @@ export function DaemonSetDetailView({
       fetchEvents={() => GetDaemonSetEvents(namespace, name)}
       eventChannel="daemonsets:changed"
       resourceLabel="daemonset"
+      toolbar={<ResourceToolbar actions={actions} />}
     >
       {(ds, events) => {
         const status = daemonSetStatus(ds);
