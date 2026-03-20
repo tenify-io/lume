@@ -235,7 +235,7 @@ describe("PersistentVolumeDetailView", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("Back to PersistentVolumes"),
+        screen.getByText("\u2190 Back"),
       ).toBeInTheDocument();
     });
   });

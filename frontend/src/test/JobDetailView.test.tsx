@@ -227,7 +227,7 @@ describe("JobDetailView", () => {
     await user.click(screen.getByText("data-import-28abc"));
 
     await waitFor(() => {
-      expect(screen.getByText("Back to Jobs")).toBeInTheDocument();
+      expect(screen.getByText("\u2190 Back")).toBeInTheDocument();
     });
   });
 });

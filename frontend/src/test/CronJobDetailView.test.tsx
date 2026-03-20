@@ -237,7 +237,7 @@ describe("CronJobDetailView", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("Back to CronJobs"),
+        screen.getByText("\u2190 Back"),
       ).toBeInTheDocument();
     });
   });

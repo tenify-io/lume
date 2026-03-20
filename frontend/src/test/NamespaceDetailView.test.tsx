@@ -264,7 +264,7 @@ describe("NamespaceDetailView", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("Back to Namespaces"),
+        screen.getByText("\u2190 Back"),
       ).toBeInTheDocument();
     });
   });

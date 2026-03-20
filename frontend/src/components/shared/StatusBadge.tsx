@@ -15,11 +15,29 @@ export function statusColorClass(status: string): string {
   }
 }
 
+function statusDotClass(status: string): string {
+  switch (status.toLowerCase()) {
+    case "running":
+    case "ready":
+      return "bg-emerald-400";
+    case "succeeded":
+      return "bg-sky-400";
+    case "pending":
+      return "bg-amber-400";
+    case "failed":
+    case "notready":
+      return "bg-red-400";
+    default:
+      return "bg-zinc-400";
+  }
+}
+
 export function StatusBadge({ status }: { status: string }) {
   return (
     <span
-      className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold shrink-0 ${statusColorClass(status)}`}
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase shrink-0 ${statusColorClass(status)}`}
     >
+      <span className={`w-1.5 h-1.5 rounded-full ${statusDotClass(status)}`} />
       {status}
     </span>
   );

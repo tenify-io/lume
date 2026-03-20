@@ -246,9 +246,7 @@ describe("NetworkPolicyDetailView", () => {
     await user.click(screen.getByText("deny-external"));
 
     await waitFor(() => {
-      expect(
-        screen.getByText("Back to Network Policies"),
-      ).toBeInTheDocument();
+      expect(screen.getByText("\u2190 Back")).toBeInTheDocument();
     });
   });
 });

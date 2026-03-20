@@ -233,7 +233,7 @@ describe("ConfigMapDetailView", () => {
     await user.click(screen.getByText("app-config"));
 
     await waitFor(() => {
-      expect(screen.getByText("Back to ConfigMaps")).toBeInTheDocument();
+      expect(screen.getByText("\u2190 Back")).toBeInTheDocument();
     });
   });
 });

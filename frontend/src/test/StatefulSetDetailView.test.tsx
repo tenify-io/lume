@@ -293,7 +293,7 @@ describe("StatefulSetDetailView", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("Back to StatefulSets"),
+        screen.getByText("\u2190 Back"),
       ).toBeInTheDocument();
     });
   });

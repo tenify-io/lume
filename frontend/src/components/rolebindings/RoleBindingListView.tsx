@@ -149,7 +149,7 @@ export function RoleBindingListView() {
                   <span
                     className={`inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded-sm ${
                       b.kind === "ClusterRoleBinding"
-                        ? "text-blue-400 bg-blue-500/10"
+                        ? "text-emerald-400 bg-emerald-500/10"
                         : "text-zinc-400 bg-zinc-800"
                     }`}
                   >

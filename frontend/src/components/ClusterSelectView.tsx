@@ -126,7 +126,7 @@ function ClusterSelectView({
                 }}
                 className={`group relative flex flex-col gap-2 rounded-sm p-4 transition-colors cursor-pointer ${
                   isConnecting
-                    ? "bg-zinc-900 ring-1 ring-blue-400"
+                    ? "bg-zinc-900 ring-1 ring-green-500"
                     : "bg-zinc-900 hover:bg-zinc-800"
                 } ${connecting && !isConnecting ? "opacity-50 pointer-events-none" : ""}`}
               >
@@ -201,7 +201,7 @@ function ClusterSelectView({
                 {/* Connecting indicator */}
                 {isConnecting && (
                   <div className="absolute inset-0 flex items-center justify-center rounded-sm bg-zinc-900/80">
-                    <span className="text-[13px] text-blue-400 font-medium">
+                    <span className="text-[13px] text-emerald-400 font-medium">
                       Connecting...
                     </span>
                   </div>

@@ -6,7 +6,6 @@ import (
 	"sort"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
@@ -111,54 +110,7 @@ func (c *Client) GetDeploymentDetail(ctx context.Context, namespace, name string
 
 // GetDeploymentEvents returns events related to a specific deployment.
 func (c *Client) GetDeploymentEvents(ctx context.Context, namespace, name string) ([]EventInfo, error) {
-	fieldSelector := fields.AndSelectors(
-		fields.OneTermEqualSelector("involvedObject.name", name),
-		fields.OneTermEqualSelector("involvedObject.namespace", namespace),
-		fields.OneTermEqualSelector("involvedObject.kind", "Deployment"),
-	).String()
-
-	eventList, err := c.clientset.CoreV1().Events(namespace).List(ctx, metav1.ListOptions{
-		FieldSelector: fieldSelector,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to list events for deployment %s/%s: %w", namespace, name, err)
-	}
-
-	var events []EventInfo
-	for _, e := range eventList.Items {
-		firstSeen := ""
-		if !e.FirstTimestamp.IsZero() {
-			firstSeen = e.FirstTimestamp.Format("2006-01-02 15:04:05 MST")
-		}
-		lastSeen := ""
-		eventAge := ""
-		if !e.LastTimestamp.IsZero() {
-			lastSeen = e.LastTimestamp.Format("2006-01-02 15:04:05 MST")
-			eventAge = FormatDuration(metav1.Now().Sub(e.LastTimestamp.Time))
-		}
-
-		source := e.Source.Component
-		if e.Source.Host != "" {
-			source += "/" + e.Source.Host
-		}
-
-		events = append(events, EventInfo{
-			Type:           e.Type,
-			Reason:         e.Reason,
-			Message:        e.Message,
-			Source:         source,
-			Count:          e.Count,
-			FirstTimestamp: firstSeen,
-			LastTimestamp:  lastSeen,
-			Age:            eventAge,
-		})
-	}
-
-	sort.Slice(events, func(i, j int) bool {
-		return events[i].LastTimestamp > events[j].LastTimestamp
-	})
-
-	return events, nil
+	return c.ListEvents(ctx, namespace, name, "Deployment")
 }
 
 // intStrToString converts an *intstr.IntOrString to a display string.

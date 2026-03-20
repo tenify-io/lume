@@ -13,7 +13,8 @@ Kubernetes dashboard desktop app by [Tenify](https://github.com/tenify-io). Wail
 - **Theme**: Dark mode only (`<html class="dark">`), zinc-based color palette
   - Background: `zinc-950`, surfaces: `zinc-900`
   - Use shadcn CSS variables (`--background`, `--foreground`, etc.) for theme-aware colors in components
-  - Accent: `blue-400` / `blue-600`
+  - Accent: `green-500` / `emerald-400` (brand tertiary — **no blue**)
+- **Design system**: Full design system documented in `.claude/skills/design-system.md` — follow it for all frontend styling decisions (colors, typography, spacing, components, layout)
 - **Design principles**:
   - **Near-square corners**: `--radius` is set to `0.2rem` — all radii should stay very small
   - **No borders on filled elements**: If an element has a background color, do not add a border. Use background contrast alone for visual separation. Borders are only for elements with no background fill (e.g., outline-style buttons, table row separators). Use `ring-*` for focus/active highlights on filled elements.

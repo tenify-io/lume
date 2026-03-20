@@ -95,9 +95,9 @@ export function RoleBindingDetailView({
           {/* Identity */}
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <h2 className="text-base font-semibold text-zinc-100 truncate">
+              <h2 className="text-xl font-bold tracking-tight text-zinc-100 truncate">
                 {binding.name}
-                <span className="ml-2 inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded-sm align-middle text-blue-400 bg-blue-500/10">
+                <span className="ml-2 inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded-sm align-middle text-emerald-400 bg-emerald-500/10">
                   {binding.kind}
                 </span>
               </h2>
@@ -110,7 +110,7 @@ export function RoleBindingDetailView({
           </div>
 
           {/* Quick stats */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-4">
             {[
               { label: "Kind", value: binding.kind },
               {
@@ -119,11 +119,11 @@ export function RoleBindingDetailView({
               },
               { label: "Age", value: binding.age },
             ].map((s) => (
-              <div key={s.label} className="bg-zinc-950 rounded-sm px-3 py-2">
-                <div className="text-[11px] text-zinc-500 uppercase tracking-wide">
+              <div key={s.label} className="bg-zinc-950 rounded-sm px-4 py-3">
+                <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
                   {s.label}
                 </div>
-                <div className="text-sm font-semibold text-zinc-200 mt-0.5">
+                <div className="text-lg font-bold text-zinc-200 mt-0.5">
                   {s.value || "\u2014"}
                 </div>
               </div>
@@ -131,15 +131,15 @@ export function RoleBindingDetailView({
           </div>
 
           {/* Details grid */}
-          <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-[13px]">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-[13px]">
             <div>
-              <span className="text-zinc-500">Created</span>
+              <span className="text-[10px] text-zinc-500 uppercase font-medium">Created</span>
               <p className="text-zinc-200">
                 {binding.creationTimestamp || "\u2014"}
               </p>
             </div>
             <div>
-              <span className="text-zinc-500">UID</span>
+              <span className="text-[10px] text-zinc-500 uppercase font-medium">UID</span>
               <p className="text-zinc-200 font-mono text-xs truncate">
                 {binding.uid}
               </p>
@@ -161,7 +161,7 @@ export function RoleBindingDetailView({
                 <p>
                   <button
                     onClick={handleRoleRefClick}
-                    className="text-blue-400 hover:underline cursor-pointer"
+                    className="text-zinc-200 hover:underline cursor-pointer"
                   >
                     {binding.roleRef.name}
                   </button>

@@ -126,7 +126,7 @@ export function Sidebar() {
                 onClick={() => navigate({ page: item.page } as Route)}
                 className={`w-full flex items-center gap-2.5 px-4 py-1.5 text-[13px] transition-colors ${
                   isActive
-                    ? "bg-zinc-800 text-zinc-200 font-medium border-l-2 border-blue-500"
+                    ? "bg-zinc-800 text-zinc-200 font-medium border-l-2 border-green-500"
                     : "text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-300 border-l-2 border-transparent"
                 }`}
               >

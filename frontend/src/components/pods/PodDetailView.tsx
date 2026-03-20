@@ -1,20 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { GetPodDetail, GetPodEvents } from "../../../wailsjs/go/main/App";
-import { EventsOn } from "../../../wailsjs/runtime/runtime";
 import { kube } from "../../../wailsjs/go/models";
-import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { MetadataRow } from "@/components/shared/MetadataRow";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { KeyValueList } from "@/components/shared/KeyValueList";
 import { ConditionsTable } from "@/components/shared/ConditionsTable";
 import { EventsTable } from "@/components/shared/EventsTable";
-import { useNavigation } from "@/navigation";
-
-interface PodDetailViewProps {
-  namespace: string;
-  name: string;
-}
+import { ResourceDetailView } from "@/components/shared/ResourceDetailView";
 
 function containerStateClass(state: string): string {
   if (state === "running") return "text-emerald-400";
@@ -159,7 +152,7 @@ function ContainerList({
                           {["Name", "Mount Path", "Read Only"].map((h) => (
                             <th
                               key={h}
-                              className="px-2 py-1 text-left text-[11px] font-semibold text-zinc-600"
+                              className="px-2 py-1 text-left text-[11px] font-bold uppercase tracking-wide text-zinc-500"
                             >
                               {h}
                             </th>
@@ -196,64 +189,13 @@ function ContainerList({
 export function PodDetailView({
   namespace,
   name,
-}: PodDetailViewProps) {
-  const { goBack } = useNavigation();
-  const [pod, setPod] = useState<kube.PodDetail | null>(null);
-  const [events, setEvents] = useState<kube.EventInfo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+}: {
+  namespace: string;
+  name: string;
+}) {
   const [expandedContainers, setExpandedContainers] = useState<Set<string>>(
     new Set(),
   );
-
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      setError("");
-      try {
-        const [podDetail, podEvents] = await Promise.all([
-          GetPodDetail(namespace, name),
-          GetPodEvents(namespace, name),
-        ]);
-        setPod(podDetail);
-        setEvents(podEvents || []);
-      } catch (e: unknown) {
-        setError(String(e));
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, [namespace, name]);
-
-  // Live updates — refetch detail when this pod changes
-  useEffect(() => {
-    const cancel = EventsOn(
-      "pods:changed",
-      (event: { type: string; data: { name: string; namespace: string } }) => {
-        if (event.data.name !== name || event.data.namespace !== namespace)
-          return;
-
-        if (event.type === "DELETED") {
-          setError("This pod has been deleted");
-          setPod(null);
-          return;
-        }
-
-        Promise.all([
-          GetPodDetail(namespace, name),
-          GetPodEvents(namespace, name),
-        ])
-          .then(([podDetail, podEvents]) => {
-            setPod(podDetail);
-            setEvents(podEvents || []);
-          })
-          .catch(() => {});
-      },
-    );
-
-    return () => cancel();
-  }, [namespace, name]);
 
   function toggleContainer(containerName: string) {
     setExpandedContainers((prev) => {
@@ -267,221 +209,202 @@ export function PodDetailView({
     });
   }
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center flex-1 text-zinc-600 gap-3">
-        <p>Loading pod details...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center flex-1 gap-3">
-        <p className="text-red-400">{error}</p>
-        <Button variant="secondary" onClick={goBack}>
-          Back to Pods
-        </Button>
-      </div>
-    );
-  }
-
-  if (!pod) return null;
-
   const hasResources = (r: kube.ContainerResource) =>
     r.cpuRequest || r.cpuLimit || r.memoryRequest || r.memoryLimit;
 
   return (
-    <div className="flex-1 overflow-auto min-h-0">
-      <div className="px-6 py-5 flex flex-col gap-6">
-        {/* Back */}
-        <div>
-          <Button variant="ghost" size="sm" onClick={goBack}>
-            &larr; Back
-          </Button>
-        </div>
-
-        {/* Pod overview */}
-        <section className="bg-zinc-900 rounded-sm px-5 py-4 flex flex-col gap-4">
-          {/* Identity */}
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <h2 className="text-base font-semibold text-zinc-100 truncate">
-                {pod.name}
-              </h2>
-              <p className="text-xs text-zinc-500 mt-0.5">
-                {pod.namespace}
-              </p>
+    <ResourceDetailView<kube.PodDetail>
+      namespace={namespace}
+      name={name}
+      fetchDetail={() => GetPodDetail(namespace, name)}
+      fetchEvents={() => GetPodEvents(namespace, name)}
+      eventChannel="pods:changed"
+      resourceLabel="pod"
+    >
+      {(pod, events) => (
+        <>
+          {/* Pod overview */}
+          <section className="bg-zinc-900 rounded-sm px-5 py-4 flex flex-col gap-4">
+            {/* Identity */}
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <h2 className="text-xl font-bold tracking-tight text-zinc-100 truncate">
+                  {pod.name}
+                </h2>
+                <p className="text-xs text-zinc-500 mt-0.5">
+                  {pod.namespace}
+                </p>
+              </div>
+              <StatusBadge status={pod.status} />
             </div>
-            <StatusBadge status={pod.status} />
-          </div>
 
-          {/* Quick stats */}
-          <div className="grid grid-cols-4 gap-3">
-            {[
-              { label: "Ready", value: pod.ready },
-              { label: "Restarts", value: String(pod.restarts) },
-              { label: "Age", value: pod.age },
-              { label: "QoS", value: pod.qosClass },
-            ].map((s) => (
-              <div key={s.label} className="bg-zinc-950 rounded-sm px-3 py-2">
-                <div className="text-[11px] text-zinc-500 uppercase tracking-wide">
-                  {s.label}
+            {/* Quick stats */}
+            <div className="grid grid-cols-4 gap-4">
+              {[
+                { label: "Ready", value: pod.ready },
+                { label: "Restarts", value: String(pod.restarts) },
+                { label: "Age", value: pod.age },
+                { label: "QoS", value: pod.qosClass },
+              ].map((s) => (
+                <div key={s.label} className="bg-zinc-950 rounded-sm px-4 py-3">
+                  <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+                    {s.label}
+                  </div>
+                  <div className="text-lg font-bold text-zinc-200 mt-0.5">
+                    {s.value || "\u2014"}
+                  </div>
                 </div>
-                <div className="text-sm font-semibold text-zinc-200 mt-0.5">
-                  {s.value || "—"}
+              ))}
+            </div>
+
+            {/* Details grid */}
+            <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-[13px]">
+              <div>
+                <span className="text-[10px] text-zinc-500 uppercase font-medium">Node</span>
+                <p className="text-zinc-200 truncate">{pod.nodeName || "\u2014"}</p>
+              </div>
+              <div>
+                <span className="text-[10px] text-zinc-500 uppercase font-medium">Service Account</span>
+                <p className="text-zinc-200 truncate">
+                  {pod.serviceAccountName || "\u2014"}
+                </p>
+              </div>
+              <div>
+                <span className="text-[10px] text-zinc-500 uppercase font-medium">Pod IP</span>
+                <p className="text-zinc-200 font-mono text-xs">
+                  {pod.ip || "\u2014"}
+                </p>
+              </div>
+              <div>
+                <span className="text-[10px] text-zinc-500 uppercase font-medium">Host IP</span>
+                <p className="text-zinc-200 font-mono text-xs">
+                  {pod.hostIP || "\u2014"}
+                </p>
+              </div>
+              <div>
+                <span className="text-[10px] text-zinc-500 uppercase font-medium">Restart Policy</span>
+                <p className="text-zinc-200">{pod.restartPolicy || "\u2014"}</p>
+              </div>
+              <div>
+                <span className="text-[10px] text-zinc-500 uppercase font-medium">Start Time</span>
+                <p className="text-zinc-200">{pod.startTime || "\u2014"}</p>
+              </div>
+              <div>
+                <span className="text-[10px] text-zinc-500 uppercase font-medium">Created</span>
+                <p className="text-zinc-200">{pod.creationTimestamp || "\u2014"}</p>
+              </div>
+              <div>
+                <span className="text-[10px] text-zinc-500 uppercase font-medium">UID</span>
+                <p className="text-zinc-200 font-mono text-xs truncate">
+                  {pod.uid}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Labels & Annotations */}
+          {((pod.labels && Object.keys(pod.labels).length > 0) ||
+            (pod.annotations && Object.keys(pod.annotations).length > 0)) && (
+            <section className="flex flex-col gap-4">
+              {pod.labels && Object.keys(pod.labels).length > 0 && (
+                <div>
+                  <SectionHeading>Labels</SectionHeading>
+                  <KeyValueList entries={pod.labels} />
                 </div>
-              </div>
-            ))}
-          </div>
+              )}
+              {pod.annotations && Object.keys(pod.annotations).length > 0 && (
+                <div>
+                  <SectionHeading>Annotations</SectionHeading>
+                  <KeyValueList entries={pod.annotations} />
+                </div>
+              )}
+            </section>
+          )}
 
-          {/* Details grid */}
-          <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-[13px]">
-            <div>
-              <span className="text-zinc-500">Node</span>
-              <p className="text-zinc-200 truncate">{pod.nodeName || "—"}</p>
-            </div>
-            <div>
-              <span className="text-zinc-500">Service Account</span>
-              <p className="text-zinc-200 truncate">
-                {pod.serviceAccountName || "—"}
-              </p>
-            </div>
-            <div>
-              <span className="text-zinc-500">Pod IP</span>
-              <p className="text-zinc-200 font-mono text-xs">
-                {pod.ip || "—"}
-              </p>
-            </div>
-            <div>
-              <span className="text-zinc-500">Host IP</span>
-              <p className="text-zinc-200 font-mono text-xs">
-                {pod.hostIP || "—"}
-              </p>
-            </div>
-            <div>
-              <span className="text-zinc-500">Restart Policy</span>
-              <p className="text-zinc-200">{pod.restartPolicy || "—"}</p>
-            </div>
-            <div>
-              <span className="text-zinc-500">Start Time</span>
-              <p className="text-zinc-200">{pod.startTime || "—"}</p>
-            </div>
-            <div>
-              <span className="text-zinc-500">Created</span>
-              <p className="text-zinc-200">{pod.creationTimestamp || "—"}</p>
-            </div>
-            <div>
-              <span className="text-zinc-500">UID</span>
-              <p className="text-zinc-200 font-mono text-xs truncate">
-                {pod.uid}
-              </p>
-            </div>
-          </div>
-        </section>
+          {/* Conditions */}
+          {pod.conditions && pod.conditions.length > 0 && (
+            <section>
+              <SectionHeading>Conditions</SectionHeading>
+              <ConditionsTable conditions={pod.conditions} />
+            </section>
+          )}
 
-        {/* Labels & Annotations */}
-        {((pod.labels && Object.keys(pod.labels).length > 0) ||
-          (pod.annotations && Object.keys(pod.annotations).length > 0)) && (
-          <section className="flex flex-col gap-4">
-            {pod.labels && Object.keys(pod.labels).length > 0 && (
-              <div>
-                <SectionHeading>Labels</SectionHeading>
-                <KeyValueList entries={pod.labels} />
-              </div>
-            )}
-            {pod.annotations && Object.keys(pod.annotations).length > 0 && (
-              <div>
-                <SectionHeading>Annotations</SectionHeading>
-                <KeyValueList entries={pod.annotations} />
-              </div>
-            )}
-          </section>
-        )}
+          {/* Init Containers */}
+          {pod.initContainers && pod.initContainers.length > 0 && (
+            <section>
+              <SectionHeading>
+                Init Containers ({pod.initContainers.length})
+              </SectionHeading>
+              <ContainerList
+                containers={pod.initContainers}
+                expandedContainers={expandedContainers}
+                onToggle={toggleContainer}
+                hasResources={hasResources}
+              />
+            </section>
+          )}
 
-        {/* Conditions */}
-        {pod.conditions && pod.conditions.length > 0 && (
-          <section>
-            <SectionHeading>Conditions</SectionHeading>
-            <ConditionsTable conditions={pod.conditions} />
-          </section>
-        )}
-
-        {/* Init Containers */}
-        {pod.initContainers && pod.initContainers.length > 0 && (
+          {/* Containers */}
           <section>
             <SectionHeading>
-              Init Containers ({pod.initContainers.length})
+              Containers ({pod.containers?.length || 0})
             </SectionHeading>
             <ContainerList
-              containers={pod.initContainers}
+              containers={pod.containers || []}
               expandedContainers={expandedContainers}
               onToggle={toggleContainer}
               hasResources={hasResources}
             />
           </section>
-        )}
 
-        {/* Containers */}
-        <section>
-          <SectionHeading>
-            Containers ({pod.containers?.length || 0})
-          </SectionHeading>
-          <ContainerList
-            containers={pod.containers || []}
-            expandedContainers={expandedContainers}
-            onToggle={toggleContainer}
-            hasResources={hasResources}
-          />
-        </section>
-
-        {/* Volumes */}
-        {pod.volumes && pod.volumes.length > 0 && (
-          <section>
-            <SectionHeading>Volumes ({pod.volumes.length})</SectionHeading>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-[13px]">
-                <thead>
-                  <tr>
-                    {["Name", "Type", "Source"].map((h) => (
-                      <th
-                        key={h}
-                        className="px-3 py-1.5 text-left text-[11px] font-semibold text-zinc-600 bg-zinc-900"
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {pod.volumes.map((v) => (
-                    <tr key={v.name}>
-                      <td className="px-3 py-1.5 border-b border-zinc-800/30 font-mono text-zinc-200">
-                        {v.name}
-                      </td>
-                      <td className="px-3 py-1.5 border-b border-zinc-800/30 text-zinc-400">
-                        {v.type}
-                      </td>
-                      <td className="px-3 py-1.5 border-b border-zinc-800/30 font-mono text-zinc-400">
-                        {v.source || "—"}
-                      </td>
+          {/* Volumes */}
+          {pod.volumes && pod.volumes.length > 0 && (
+            <section>
+              <SectionHeading>Volumes ({pod.volumes.length})</SectionHeading>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-[13px]">
+                  <thead>
+                    <tr>
+                      {["Name", "Type", "Source"].map((h) => (
+                        <th
+                          key={h}
+                          className="px-3 py-1.5 text-left text-[11px] font-bold uppercase tracking-wide text-zinc-500 bg-zinc-900"
+                        >
+                          {h}
+                        </th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        )}
+                  </thead>
+                  <tbody>
+                    {pod.volumes.map((v) => (
+                      <tr key={v.name}>
+                        <td className="px-3 py-1.5 border-b border-zinc-800/30 font-mono text-zinc-200">
+                          {v.name}
+                        </td>
+                        <td className="px-3 py-1.5 border-b border-zinc-800/30 text-zinc-400">
+                          {v.type}
+                        </td>
+                        <td className="px-3 py-1.5 border-b border-zinc-800/30 font-mono text-zinc-400">
+                          {v.source || "\u2014"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
 
-        {/* Events */}
-        <section>
-          <SectionHeading>Events ({events.length})</SectionHeading>
-          <EventsTable
-            events={events}
-            emptyMessage="No events found for this pod."
-          />
-        </section>
-      </div>
-    </div>
+          {/* Events */}
+          <section>
+            <SectionHeading>Events ({events.length})</SectionHeading>
+            <EventsTable
+              events={events}
+              emptyMessage="No events found for this pod."
+            />
+          </section>
+        </>
+      )}
+    </ResourceDetailView>
   );
 }

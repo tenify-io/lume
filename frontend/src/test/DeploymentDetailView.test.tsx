@@ -272,7 +272,7 @@ describe("DeploymentDetailView", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("Back to Deployments"),
+        screen.getByText("\u2190 Back"),
       ).toBeInTheDocument();
     });
   });

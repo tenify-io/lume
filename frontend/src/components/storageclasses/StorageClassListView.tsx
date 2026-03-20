@@ -97,7 +97,7 @@ export function StorageClassListView() {
                 <td className="px-3 py-2 border-b border-zinc-800/30 font-semibold text-zinc-200 whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px]">
                   <span>{sc.name}</span>
                   {sc.isDefault && (
-                    <span className="ml-2 inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium text-blue-400 bg-blue-500/10 rounded-sm">
+                    <span className="ml-2 inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium text-emerald-400 bg-emerald-500/10 rounded-sm">
                       default
                     </span>
                   )}

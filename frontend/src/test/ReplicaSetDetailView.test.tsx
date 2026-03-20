@@ -183,7 +183,7 @@ describe("ReplicaSetDetailView", () => {
       // The owner reference link to the deployment
       const ownerLink = screen.getByRole("button", { name: "nginx" });
       expect(ownerLink).toBeInTheDocument();
-      expect(ownerLink).toHaveClass("text-blue-400");
+      expect(ownerLink).toHaveClass("text-zinc-200");
     });
   });
 
@@ -283,7 +283,7 @@ describe("ReplicaSetDetailView", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("Back to ReplicaSets"),
+        screen.getByText("\u2190 Back"),
       ).toBeInTheDocument();
     });
   });

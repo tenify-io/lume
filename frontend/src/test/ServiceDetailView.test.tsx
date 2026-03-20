@@ -246,7 +246,7 @@ describe("ServiceDetailView", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("Back to Services"),
+        screen.getByText("\u2190 Back"),
       ).toBeInTheDocument();
     });
   });

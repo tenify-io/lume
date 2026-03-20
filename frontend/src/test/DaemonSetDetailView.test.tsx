@@ -284,7 +284,7 @@ describe("DaemonSetDetailView", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("Back to DaemonSets"),
+        screen.getByText("\u2190 Back"),
       ).toBeInTheDocument();
     });
   });

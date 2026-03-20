@@ -275,7 +275,7 @@ describe("IngressDetailView", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("Back to Ingresses"),
+        screen.getByText("\u2190 Back"),
       ).toBeInTheDocument();
     });
   });

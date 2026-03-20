@@ -26,7 +26,7 @@ export function ConditionsTable({ conditions }: { conditions: Condition[] }) {
               (h) => (
                 <th
                   key={h}
-                  className="px-3 py-1.5 text-left text-[11px] font-semibold text-zinc-600 bg-zinc-900"
+                  className="px-3 py-1.5 text-left text-[11px] font-bold uppercase tracking-wide text-zinc-500 bg-zinc-900"
                 >
                   {h}
                 </th>

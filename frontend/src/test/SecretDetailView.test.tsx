@@ -237,7 +237,7 @@ describe("SecretDetailView", () => {
     await user.click(screen.getByText("db-credentials"));
 
     await waitFor(() => {
-      expect(screen.getByText("Back to Secrets")).toBeInTheDocument();
+      expect(screen.getByText("\u2190 Back")).toBeInTheDocument();
     });
   });
 });

@@ -63,10 +63,10 @@ export function StorageClassDetailView({ name }: { name: string }) {
         <section className="bg-zinc-900 rounded-sm px-5 py-4 flex flex-col gap-4">
           {/* Identity */}
           <div className="flex items-start justify-between gap-4">
-            <h2 className="text-base font-semibold text-zinc-100 truncate">
+            <h2 className="text-xl font-bold tracking-tight text-zinc-100 truncate">
               {sc.name}
               {sc.isDefault && (
-                <span className="ml-2 inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium text-blue-400 bg-blue-500/10 rounded-sm align-middle">
+                <span className="ml-2 inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium text-emerald-400 bg-emerald-500/10 rounded-sm align-middle">
                   default
                 </span>
               )}
@@ -74,18 +74,18 @@ export function StorageClassDetailView({ name }: { name: string }) {
           </div>
 
           {/* Quick stats */}
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-4 gap-4">
             {[
               { label: "Provisioner", value: sc.provisioner },
               { label: "Reclaim Policy", value: sc.reclaimPolicy },
               { label: "Binding Mode", value: sc.volumeBindingMode },
               { label: "Age", value: sc.age },
             ].map((s) => (
-              <div key={s.label} className="bg-zinc-950 rounded-sm px-3 py-2">
-                <div className="text-[11px] text-zinc-500 uppercase tracking-wide">
+              <div key={s.label} className="bg-zinc-950 rounded-sm px-4 py-3">
+                <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
                   {s.label}
                 </div>
-                <div className="text-sm font-semibold text-zinc-200 mt-0.5">
+                <div className="text-lg font-bold text-zinc-200 mt-0.5">
                   {s.value || "\u2014"}
                 </div>
               </div>
@@ -93,21 +93,21 @@ export function StorageClassDetailView({ name }: { name: string }) {
           </div>
 
           {/* Details grid */}
-          <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-[13px]">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-[13px]">
             <div>
-              <span className="text-zinc-500">Volume Expansion</span>
+              <span className="text-[10px] text-zinc-500 uppercase font-medium">Volume Expansion</span>
               <p className="text-zinc-200">
                 {sc.allowVolumeExpansion ? "Enabled" : "Disabled"}
               </p>
             </div>
             <div>
-              <span className="text-zinc-500">Created</span>
+              <span className="text-[10px] text-zinc-500 uppercase font-medium">Created</span>
               <p className="text-zinc-200">
                 {sc.creationTimestamp || "\u2014"}
               </p>
             </div>
             <div>
-              <span className="text-zinc-500">UID</span>
+              <span className="text-[10px] text-zinc-500 uppercase font-medium">UID</span>
               <p className="text-zinc-200 font-mono text-xs truncate">
                 {sc.uid}
               </p>

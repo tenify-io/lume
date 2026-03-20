@@ -248,7 +248,7 @@ describe("PVCDetailView", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("Back to PVCs"),
+        screen.getByText("\u2190 Back"),
       ).toBeInTheDocument();
     });
   });
