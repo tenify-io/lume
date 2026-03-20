@@ -1,4 +1,4 @@
-import { Server, Box, Layers, Database, GitBranch } from "lucide-react";
+import { Server, Box, Layers, Database, GitBranch, Copy, PlayCircle, Timer, Network, Globe, Shield, FileText, KeyRound, HardDrive, FolderArchive, Archive, UserCircle, ShieldCheck, Link, FolderOpen } from "lucide-react";
 import { useNavigation, type Route } from "@/navigation";
 
 interface NavItem {
@@ -10,7 +10,10 @@ interface NavItem {
 const categories: { label: string; items: NavItem[] }[] = [
   {
     label: "Cluster",
-    items: [{ label: "Nodes", icon: Server, page: "nodes" }],
+    items: [
+      { label: "Namespaces", icon: FolderOpen, page: "namespaces" },
+      { label: "Nodes", icon: Server, page: "nodes" },
+    ],
   },
   {
     label: "Workloads",
@@ -18,7 +21,41 @@ const categories: { label: string; items: NavItem[] }[] = [
       { label: "Deployments", icon: Layers, page: "deployments" },
       { label: "StatefulSets", icon: Database, page: "statefulsets" },
       { label: "DaemonSets", icon: GitBranch, page: "daemonsets" },
+      { label: "ReplicaSets", icon: Copy, page: "replicasets" },
+      { label: "Jobs", icon: PlayCircle, page: "jobs" },
+      { label: "CronJobs", icon: Timer, page: "cronjobs" },
       { label: "Pods", icon: Box, page: "pods" },
+    ],
+  },
+  {
+    label: "Networking",
+    items: [
+      { label: "Services", icon: Network, page: "services" },
+      { label: "Ingresses", icon: Globe, page: "ingresses" },
+      { label: "NetworkPolicies", icon: Shield, page: "networkpolicies" },
+    ],
+  },
+  {
+    label: "Storage",
+    items: [
+      { label: "StorageClasses", icon: Archive, page: "storageclasses" },
+      { label: "PersistentVolumes", icon: HardDrive, page: "persistentvolumes" },
+      { label: "PVCs", icon: FolderArchive, page: "pvcs" },
+    ],
+  },
+  {
+    label: "Access Control",
+    items: [
+      { label: "ServiceAccounts", icon: UserCircle, page: "serviceaccounts" },
+      { label: "Roles", icon: ShieldCheck, page: "roles" },
+      { label: "Bindings", icon: Link, page: "rolebindings" },
+    ],
+  },
+  {
+    label: "Config",
+    items: [
+      { label: "ConfigMaps", icon: FileText, page: "configmaps" },
+      { label: "Secrets", icon: KeyRound, page: "secrets" },
     ],
   },
 ];
@@ -30,15 +67,49 @@ export function Sidebar() {
   const activePage =
     route.page === "pod-detail"
       ? "pods"
-      : route.page === "node-detail"
-        ? "nodes"
+      : route.page === "namespace-detail"
+        ? "namespaces"
+        : route.page === "node-detail"
+          ? "nodes"
         : route.page === "deployment-detail"
           ? "deployments"
           : route.page === "statefulset-detail"
             ? "statefulsets"
             : route.page === "daemonset-detail"
               ? "daemonsets"
-              : route.page;
+              : route.page === "replicaset-detail"
+                ? "replicasets"
+                : route.page === "job-detail"
+                  ? "jobs"
+                  : route.page === "cronjob-detail"
+                    ? "cronjobs"
+                    : route.page === "service-detail"
+                      ? "services"
+                      : route.page === "ingress-detail"
+                        ? "ingresses"
+                        : route.page === "networkpolicy-detail"
+                          ? "networkpolicies"
+                          : route.page === "configmap-detail"
+                            ? "configmaps"
+                            : route.page === "secret-detail"
+                              ? "secrets"
+                              : route.page === "pvc-detail"
+                                ? "pvcs"
+                                : route.page === "persistentvolume-detail"
+                                  ? "persistentvolumes"
+                                  : route.page === "storageclass-detail"
+                                    ? "storageclasses"
+                                    : route.page === "serviceaccount-detail"
+                                      ? "serviceaccounts"
+                                      : route.page === "role-detail"
+                                        ? "roles"
+                                        : route.page === "clusterrole-detail"
+                                          ? "roles"
+                                          : route.page === "rolebinding-detail"
+                                            ? "rolebindings"
+                                            : route.page === "clusterrolebinding-detail"
+                                              ? "rolebindings"
+                                              : route.page;
 
   return (
     <nav className="w-[180px] shrink-0 bg-zinc-950 border-r border-black/50 py-4 flex flex-col gap-5 overflow-y-auto">

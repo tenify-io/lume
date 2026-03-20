@@ -4,6 +4,8 @@ export type Route =
   | { page: "cluster-select" }
   | { page: "pods" }
   | { page: "pod-detail"; namespace: string; name: string }
+  | { page: "namespaces" }
+  | { page: "namespace-detail"; name: string }
   | { page: "nodes" }
   | { page: "node-detail"; name: string }
   | { page: "deployments" }
@@ -11,7 +13,37 @@ export type Route =
   | { page: "statefulsets" }
   | { page: "statefulset-detail"; namespace: string; name: string }
   | { page: "daemonsets" }
-  | { page: "daemonset-detail"; namespace: string; name: string };
+  | { page: "daemonset-detail"; namespace: string; name: string }
+  | { page: "replicasets" }
+  | { page: "replicaset-detail"; namespace: string; name: string }
+  | { page: "jobs" }
+  | { page: "job-detail"; namespace: string; name: string }
+  | { page: "cronjobs" }
+  | { page: "cronjob-detail"; namespace: string; name: string }
+  | { page: "services" }
+  | { page: "service-detail"; namespace: string; name: string }
+  | { page: "ingresses" }
+  | { page: "ingress-detail"; namespace: string; name: string }
+  | { page: "networkpolicies" }
+  | { page: "networkpolicy-detail"; namespace: string; name: string }
+  | { page: "configmaps" }
+  | { page: "configmap-detail"; namespace: string; name: string }
+  | { page: "secrets" }
+  | { page: "secret-detail"; namespace: string; name: string }
+  | { page: "pvcs" }
+  | { page: "pvc-detail"; namespace: string; name: string }
+  | { page: "persistentvolumes" }
+  | { page: "persistentvolume-detail"; name: string }
+  | { page: "storageclasses" }
+  | { page: "storageclass-detail"; name: string }
+  | { page: "serviceaccounts" }
+  | { page: "serviceaccount-detail"; namespace: string; name: string }
+  | { page: "roles" }
+  | { page: "role-detail"; namespace: string; name: string }
+  | { page: "clusterrole-detail"; name: string }
+  | { page: "rolebindings" }
+  | { page: "rolebinding-detail"; namespace: string; name: string }
+  | { page: "clusterrolebinding-detail"; name: string };
 
 export interface Tab {
   id: string;
@@ -132,6 +164,10 @@ export function getTabTitle(route: Route): string {
       return "Pods";
     case "pod-detail":
       return route.name;
+    case "namespaces":
+      return "Namespaces";
+    case "namespace-detail":
+      return route.name;
     case "nodes":
       return "Nodes";
     case "node-detail":
@@ -147,6 +183,66 @@ export function getTabTitle(route: Route): string {
     case "daemonsets":
       return "DaemonSets";
     case "daemonset-detail":
+      return route.name;
+    case "replicasets":
+      return "ReplicaSets";
+    case "replicaset-detail":
+      return route.name;
+    case "jobs":
+      return "Jobs";
+    case "job-detail":
+      return route.name;
+    case "cronjobs":
+      return "CronJobs";
+    case "cronjob-detail":
+      return route.name;
+    case "services":
+      return "Services";
+    case "service-detail":
+      return route.name;
+    case "ingresses":
+      return "Ingresses";
+    case "ingress-detail":
+      return route.name;
+    case "networkpolicies":
+      return "Network Policies";
+    case "networkpolicy-detail":
+      return route.name;
+    case "configmaps":
+      return "ConfigMaps";
+    case "configmap-detail":
+      return route.name;
+    case "secrets":
+      return "Secrets";
+    case "secret-detail":
+      return route.name;
+    case "pvcs":
+      return "PVCs";
+    case "pvc-detail":
+      return route.name;
+    case "persistentvolumes":
+      return "PersistentVolumes";
+    case "persistentvolume-detail":
+      return route.name;
+    case "storageclasses":
+      return "StorageClasses";
+    case "storageclass-detail":
+      return route.name;
+    case "serviceaccounts":
+      return "ServiceAccounts";
+    case "serviceaccount-detail":
+      return route.name;
+    case "roles":
+      return "Roles";
+    case "role-detail":
+      return route.name;
+    case "clusterrole-detail":
+      return route.name;
+    case "rolebindings":
+      return "Bindings";
+    case "rolebinding-detail":
+      return route.name;
+    case "clusterrolebinding-detail":
       return route.name;
   }
 }

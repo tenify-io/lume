@@ -90,10 +90,21 @@ func (w *Watcher) Start(ctx context.Context, namespace string) {
 	w.watchInformer(nsFactory.Apps().V1().Deployments().Informer(), "deployments:changed", convertDeployment)
 	w.watchInformer(nsFactory.Apps().V1().StatefulSets().Informer(), "statefulsets:changed", convertStatefulSet)
 	w.watchInformer(nsFactory.Apps().V1().DaemonSets().Informer(), "daemonsets:changed", convertDaemonSet)
+	w.watchInformer(nsFactory.Apps().V1().ReplicaSets().Informer(), "replicasets:changed", convertReplicaSet)
+	w.watchInformer(nsFactory.Batch().V1().Jobs().Informer(), "jobs:changed", convertJob)
+	w.watchInformer(nsFactory.Batch().V1().CronJobs().Informer(), "cronjobs:changed", convertCronJob)
+	w.watchInformer(nsFactory.Core().V1().Services().Informer(), "services:changed", convertService)
+	w.watchInformer(nsFactory.Networking().V1().Ingresses().Informer(), "ingresses:changed", convertIngress)
+	w.watchInformer(nsFactory.Networking().V1().NetworkPolicies().Informer(), "networkpolicies:changed", convertNetworkPolicy)
+	w.watchInformer(nsFactory.Core().V1().ConfigMaps().Informer(), "configmaps:changed", convertConfigMap)
+	w.watchInformer(nsFactory.Core().V1().Secrets().Informer(), "secrets:changed", convertSecret)
+	w.watchInformer(nsFactory.Core().V1().PersistentVolumeClaims().Informer(), "pvcs:changed", convertPVC)
+	w.watchInformer(nsFactory.Core().V1().ServiceAccounts().Informer(), "serviceaccounts:changed", convertServiceAccount)
 
 	// Cluster-scoped resources
 	clusterFactory := informers.NewSharedInformerFactoryWithOptions(w.clientset, 0)
 	w.watchInformer(clusterFactory.Core().V1().Nodes().Informer(), "nodes:changed", convertNode)
+	w.watchInformer(clusterFactory.Core().V1().PersistentVolumes().Informer(), "persistentvolumes:changed", convertPV)
 
 	nsFactory.Start(watchCtx.Done())
 	clusterFactory.Start(watchCtx.Done())

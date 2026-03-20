@@ -18,12 +18,48 @@ export function GetClusterHealth() {
   return window['go']['main']['App']['GetClusterHealth']();
 }
 
+export function GetClusterRoleBindingDetail(arg1) {
+  return window['go']['main']['App']['GetClusterRoleBindingDetail'](arg1);
+}
+
+export function GetClusterRoleBindings() {
+  return window['go']['main']['App']['GetClusterRoleBindings']();
+}
+
+export function GetClusterRoleDetail(arg1) {
+  return window['go']['main']['App']['GetClusterRoleDetail'](arg1);
+}
+
+export function GetClusterRoles() {
+  return window['go']['main']['App']['GetClusterRoles']();
+}
+
+export function GetConfigMapDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetConfigMapDetail'](arg1, arg2);
+}
+
+export function GetConfigMaps(arg1) {
+  return window['go']['main']['App']['GetConfigMaps'](arg1);
+}
+
 export function GetContextAliases() {
   return window['go']['main']['App']['GetContextAliases']();
 }
 
 export function GetContexts() {
   return window['go']['main']['App']['GetContexts']();
+}
+
+export function GetCronJobDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetCronJobDetail'](arg1, arg2);
+}
+
+export function GetCronJobEvents(arg1, arg2) {
+  return window['go']['main']['App']['GetCronJobEvents'](arg1, arg2);
+}
+
+export function GetCronJobs(arg1) {
+  return window['go']['main']['App']['GetCronJobs'](arg1);
 }
 
 export function GetCurrentContext() {
@@ -54,8 +90,56 @@ export function GetDeployments(arg1) {
   return window['go']['main']['App']['GetDeployments'](arg1);
 }
 
+export function GetIngressDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetIngressDetail'](arg1, arg2);
+}
+
+export function GetIngressEvents(arg1, arg2) {
+  return window['go']['main']['App']['GetIngressEvents'](arg1, arg2);
+}
+
+export function GetIngresses(arg1) {
+  return window['go']['main']['App']['GetIngresses'](arg1);
+}
+
+export function GetJobDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetJobDetail'](arg1, arg2);
+}
+
+export function GetJobEvents(arg1, arg2) {
+  return window['go']['main']['App']['GetJobEvents'](arg1, arg2);
+}
+
+export function GetJobs(arg1) {
+  return window['go']['main']['App']['GetJobs'](arg1);
+}
+
+export function GetNamespaceDetail(arg1) {
+  return window['go']['main']['App']['GetNamespaceDetail'](arg1);
+}
+
+export function GetNamespaceEvents(arg1) {
+  return window['go']['main']['App']['GetNamespaceEvents'](arg1);
+}
+
+export function GetNamespaceList() {
+  return window['go']['main']['App']['GetNamespaceList']();
+}
+
+export function GetNamespaceResourceSummary(arg1) {
+  return window['go']['main']['App']['GetNamespaceResourceSummary'](arg1);
+}
+
 export function GetNamespaces() {
   return window['go']['main']['App']['GetNamespaces']();
+}
+
+export function GetNetworkPolicies(arg1) {
+  return window['go']['main']['App']['GetNetworkPolicies'](arg1);
+}
+
+export function GetNetworkPolicyDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetNetworkPolicyDetail'](arg1, arg2);
 }
 
 export function GetNodeDetail(arg1) {
@@ -68,6 +152,30 @@ export function GetNodeEvents(arg1) {
 
 export function GetNodes() {
   return window['go']['main']['App']['GetNodes']();
+}
+
+export function GetPVCDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetPVCDetail'](arg1, arg2);
+}
+
+export function GetPVCEvents(arg1, arg2) {
+  return window['go']['main']['App']['GetPVCEvents'](arg1, arg2);
+}
+
+export function GetPVCs(arg1) {
+  return window['go']['main']['App']['GetPVCs'](arg1);
+}
+
+export function GetPersistentVolumeDetail(arg1) {
+  return window['go']['main']['App']['GetPersistentVolumeDetail'](arg1);
+}
+
+export function GetPersistentVolumeEvents(arg1) {
+  return window['go']['main']['App']['GetPersistentVolumeEvents'](arg1);
+}
+
+export function GetPersistentVolumes() {
+  return window['go']['main']['App']['GetPersistentVolumes']();
 }
 
 export function GetPodDetail(arg1, arg2) {
@@ -86,6 +194,62 @@ export function GetPreference(arg1) {
   return window['go']['main']['App']['GetPreference'](arg1);
 }
 
+export function GetReplicaSetDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetReplicaSetDetail'](arg1, arg2);
+}
+
+export function GetReplicaSetEvents(arg1, arg2) {
+  return window['go']['main']['App']['GetReplicaSetEvents'](arg1, arg2);
+}
+
+export function GetReplicaSets(arg1) {
+  return window['go']['main']['App']['GetReplicaSets'](arg1);
+}
+
+export function GetRoleBindingDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetRoleBindingDetail'](arg1, arg2);
+}
+
+export function GetRoleBindings(arg1) {
+  return window['go']['main']['App']['GetRoleBindings'](arg1);
+}
+
+export function GetRoleDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetRoleDetail'](arg1, arg2);
+}
+
+export function GetRoles(arg1) {
+  return window['go']['main']['App']['GetRoles'](arg1);
+}
+
+export function GetSecretDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetSecretDetail'](arg1, arg2);
+}
+
+export function GetSecrets(arg1) {
+  return window['go']['main']['App']['GetSecrets'](arg1);
+}
+
+export function GetServiceAccountDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetServiceAccountDetail'](arg1, arg2);
+}
+
+export function GetServiceAccounts(arg1) {
+  return window['go']['main']['App']['GetServiceAccounts'](arg1);
+}
+
+export function GetServiceDetail(arg1, arg2) {
+  return window['go']['main']['App']['GetServiceDetail'](arg1, arg2);
+}
+
+export function GetServiceEvents(arg1, arg2) {
+  return window['go']['main']['App']['GetServiceEvents'](arg1, arg2);
+}
+
+export function GetServices(arg1) {
+  return window['go']['main']['App']['GetServices'](arg1);
+}
+
 export function GetStatefulSetDetail(arg1, arg2) {
   return window['go']['main']['App']['GetStatefulSetDetail'](arg1, arg2);
 }
@@ -96,6 +260,14 @@ export function GetStatefulSetEvents(arg1, arg2) {
 
 export function GetStatefulSets(arg1) {
   return window['go']['main']['App']['GetStatefulSets'](arg1);
+}
+
+export function GetStorageClassDetail(arg1) {
+  return window['go']['main']['App']['GetStorageClassDetail'](arg1);
+}
+
+export function GetStorageClasses() {
+  return window['go']['main']['App']['GetStorageClasses']();
 }
 
 export function SetContextAlias(arg1, arg2) {

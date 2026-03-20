@@ -10,9 +10,27 @@ export function GetAllPreferences():Promise<Record<string, any>>;
 
 export function GetClusterHealth():Promise<kube.ClusterHealth>;
 
+export function GetClusterRoleBindingDetail(arg1:string):Promise<kube.RoleBindingDetail>;
+
+export function GetClusterRoleBindings():Promise<Array<kube.RoleBindingInfo>>;
+
+export function GetClusterRoleDetail(arg1:string):Promise<kube.RoleDetail>;
+
+export function GetClusterRoles():Promise<Array<kube.RoleInfo>>;
+
+export function GetConfigMapDetail(arg1:string,arg2:string):Promise<kube.ConfigMapDetail>;
+
+export function GetConfigMaps(arg1:string):Promise<Array<kube.ConfigMapInfo>>;
+
 export function GetContextAliases():Promise<Record<string, string>>;
 
 export function GetContexts():Promise<Array<kube.Context>>;
+
+export function GetCronJobDetail(arg1:string,arg2:string):Promise<kube.CronJobDetail>;
+
+export function GetCronJobEvents(arg1:string,arg2:string):Promise<Array<kube.EventInfo>>;
+
+export function GetCronJobs(arg1:string):Promise<Array<kube.CronJobInfo>>;
 
 export function GetCurrentContext():Promise<string>;
 
@@ -28,13 +46,49 @@ export function GetDeploymentEvents(arg1:string,arg2:string):Promise<Array<kube.
 
 export function GetDeployments(arg1:string):Promise<Array<kube.DeploymentInfo>>;
 
+export function GetIngressDetail(arg1:string,arg2:string):Promise<kube.IngressDetail>;
+
+export function GetIngressEvents(arg1:string,arg2:string):Promise<Array<kube.EventInfo>>;
+
+export function GetIngresses(arg1:string):Promise<Array<kube.IngressInfo>>;
+
+export function GetJobDetail(arg1:string,arg2:string):Promise<kube.JobDetail>;
+
+export function GetJobEvents(arg1:string,arg2:string):Promise<Array<kube.EventInfo>>;
+
+export function GetJobs(arg1:string):Promise<Array<kube.JobInfo>>;
+
+export function GetNamespaceDetail(arg1:string):Promise<kube.NamespaceDetail>;
+
+export function GetNamespaceEvents(arg1:string):Promise<Array<kube.EventInfo>>;
+
+export function GetNamespaceList():Promise<Array<kube.NamespaceInfo>>;
+
+export function GetNamespaceResourceSummary(arg1:string):Promise<kube.NamespaceResourceSummary>;
+
 export function GetNamespaces():Promise<Array<string>>;
+
+export function GetNetworkPolicies(arg1:string):Promise<Array<kube.NetworkPolicyInfo>>;
+
+export function GetNetworkPolicyDetail(arg1:string,arg2:string):Promise<kube.NetworkPolicyDetail>;
 
 export function GetNodeDetail(arg1:string):Promise<kube.NodeDetail>;
 
 export function GetNodeEvents(arg1:string):Promise<Array<kube.EventInfo>>;
 
 export function GetNodes():Promise<Array<kube.NodeInfo>>;
+
+export function GetPVCDetail(arg1:string,arg2:string):Promise<kube.PVCDetail>;
+
+export function GetPVCEvents(arg1:string,arg2:string):Promise<Array<kube.EventInfo>>;
+
+export function GetPVCs(arg1:string):Promise<Array<kube.PVCInfo>>;
+
+export function GetPersistentVolumeDetail(arg1:string):Promise<kube.PersistentVolumeDetail>;
+
+export function GetPersistentVolumeEvents(arg1:string):Promise<Array<kube.EventInfo>>;
+
+export function GetPersistentVolumes():Promise<Array<kube.PersistentVolumeInfo>>;
 
 export function GetPodDetail(arg1:string,arg2:string):Promise<kube.PodDetail>;
 
@@ -44,11 +98,43 @@ export function GetPods(arg1:string):Promise<Array<kube.PodInfo>>;
 
 export function GetPreference(arg1:string):Promise<any>;
 
+export function GetReplicaSetDetail(arg1:string,arg2:string):Promise<kube.ReplicaSetDetail>;
+
+export function GetReplicaSetEvents(arg1:string,arg2:string):Promise<Array<kube.EventInfo>>;
+
+export function GetReplicaSets(arg1:string):Promise<Array<kube.ReplicaSetInfo>>;
+
+export function GetRoleBindingDetail(arg1:string,arg2:string):Promise<kube.RoleBindingDetail>;
+
+export function GetRoleBindings(arg1:string):Promise<Array<kube.RoleBindingInfo>>;
+
+export function GetRoleDetail(arg1:string,arg2:string):Promise<kube.RoleDetail>;
+
+export function GetRoles(arg1:string):Promise<Array<kube.RoleInfo>>;
+
+export function GetSecretDetail(arg1:string,arg2:string):Promise<kube.SecretDetail>;
+
+export function GetSecrets(arg1:string):Promise<Array<kube.SecretInfo>>;
+
+export function GetServiceAccountDetail(arg1:string,arg2:string):Promise<kube.ServiceAccountDetail>;
+
+export function GetServiceAccounts(arg1:string):Promise<Array<kube.ServiceAccountInfo>>;
+
+export function GetServiceDetail(arg1:string,arg2:string):Promise<kube.ServiceDetail>;
+
+export function GetServiceEvents(arg1:string,arg2:string):Promise<Array<kube.EventInfo>>;
+
+export function GetServices(arg1:string):Promise<Array<kube.ServiceInfo>>;
+
 export function GetStatefulSetDetail(arg1:string,arg2:string):Promise<kube.StatefulSetDetail>;
 
 export function GetStatefulSetEvents(arg1:string,arg2:string):Promise<Array<kube.EventInfo>>;
 
 export function GetStatefulSets(arg1:string):Promise<Array<kube.StatefulSetInfo>>;
+
+export function GetStorageClassDetail(arg1:string):Promise<kube.StorageClassDetail>;
+
+export function GetStorageClasses():Promise<Array<kube.StorageClassInfo>>;
 
 export function SetContextAlias(arg1:string,arg2:string):Promise<void>;
 
