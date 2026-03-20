@@ -7,6 +7,7 @@ import (
 	"sort"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/fields"
 )
 
 // GetReplicaSets returns replicasets, optionally filtered by namespace ("" for all namespaces).
@@ -100,5 +101,52 @@ func (c *Client) GetReplicaSetDetail(ctx context.Context, namespace, name string
 
 // GetReplicaSetEvents returns events related to a specific replicaset.
 func (c *Client) GetReplicaSetEvents(ctx context.Context, namespace, name string) ([]EventInfo, error) {
-	return c.ListEvents(ctx, namespace, name, "ReplicaSet")
+	fieldSelector := fields.AndSelectors(
+		fields.OneTermEqualSelector("involvedObject.name", name),
+		fields.OneTermEqualSelector("involvedObject.namespace", namespace),
+		fields.OneTermEqualSelector("involvedObject.kind", "ReplicaSet"),
+	).String()
+
+	eventList, err := c.clientset.CoreV1().Events(namespace).List(ctx, metav1.ListOptions{
+		FieldSelector: fieldSelector,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to list events for replicaset %s/%s: %w", namespace, name, err)
+	}
+
+	var events []EventInfo
+	for _, e := range eventList.Items {
+		firstSeen := ""
+		if !e.FirstTimestamp.IsZero() {
+			firstSeen = e.FirstTimestamp.Format("2006-01-02 15:04:05 MST")
+		}
+		lastSeen := ""
+		eventAge := ""
+		if !e.LastTimestamp.IsZero() {
+			lastSeen = e.LastTimestamp.Format("2006-01-02 15:04:05 MST")
+			eventAge = FormatDuration(metav1.Now().Sub(e.LastTimestamp.Time))
+		}
+
+		source := e.Source.Component
+		if e.Source.Host != "" {
+			source += "/" + e.Source.Host
+		}
+
+		events = append(events, EventInfo{
+			Type:           e.Type,
+			Reason:         e.Reason,
+			Message:        e.Message,
+			Source:         source,
+			Count:          e.Count,
+			FirstTimestamp: firstSeen,
+			LastTimestamp:  lastSeen,
+			Age:            eventAge,
+		})
+	}
+
+	sort.Slice(events, func(i, j int) bool {
+		return events[i].LastTimestamp > events[j].LastTimestamp
+	})
+
+	return events, nil
 }
