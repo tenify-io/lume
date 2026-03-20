@@ -17,7 +17,7 @@ func TestStatefulSetToStatefulSetInfo_FullyReady(t *testing.T) {
 			CreationTimestamp: metav1.NewTime(time.Now().Add(-2 * time.Hour)),
 		},
 		Spec: appsv1.StatefulSetSpec{
-			Replicas:    int32Ptr(3),
+			Replicas:    ptrInt32(3),
 			ServiceName: "mysql",
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
@@ -69,7 +69,7 @@ func TestStatefulSetToStatefulSetInfo_Progressing(t *testing.T) {
 			CreationTimestamp: metav1.NewTime(time.Now().Add(-30 * 24 * time.Hour)),
 		},
 		Spec: appsv1.StatefulSetSpec{
-			Replicas:    int32Ptr(5),
+			Replicas:    ptrInt32(5),
 			ServiceName: "redis",
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
@@ -132,7 +132,7 @@ func TestStatefulSetToStatefulSetInfo_ZeroTimestamp(t *testing.T) {
 			Namespace: "default",
 		},
 		Spec: appsv1.StatefulSetSpec{
-			Replicas: int32Ptr(1),
+			Replicas: ptrInt32(1),
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
@@ -157,7 +157,7 @@ func TestConvertStatefulSet(t *testing.T) {
 			Namespace: "default",
 		},
 		Spec: appsv1.StatefulSetSpec{
-			Replicas: int32Ptr(1),
+			Replicas: ptrInt32(1),
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{

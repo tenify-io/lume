@@ -124,6 +124,38 @@ func (a *App) GetNamespaces() ([]string, error) {
 	return a.client.GetNamespaces(a.ctx)
 }
 
+// GetNamespaceList returns all namespaces with full info for the list view.
+func (a *App) GetNamespaceList() ([]kube.NamespaceInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetNamespaceList(a.ctx)
+}
+
+// GetNamespaceDetail returns detailed information about a single namespace.
+func (a *App) GetNamespaceDetail(name string) (*kube.NamespaceDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetNamespaceDetail(a.ctx, name)
+}
+
+// GetNamespaceEvents returns events related to a specific namespace.
+func (a *App) GetNamespaceEvents(name string) ([]kube.EventInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetNamespaceEvents(a.ctx, name)
+}
+
+// GetNamespaceResourceSummary returns counts of resources within a namespace.
+func (a *App) GetNamespaceResourceSummary(name string) (*kube.NamespaceResourceSummary, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetNamespaceResourceSummary(a.ctx, name)
+}
+
 // GetPods returns pods, optionally filtered by namespace ("" for all namespaces).
 func (a *App) GetPods(namespace string) ([]kube.PodInfo, error) {
 	if a.client == nil {
@@ -218,6 +250,318 @@ func (a *App) GetDaemonSetEvents(namespace, name string) ([]kube.EventInfo, erro
 		return nil, fmt.Errorf("not connected to a cluster")
 	}
 	return a.client.GetDaemonSetEvents(a.ctx, namespace, name)
+}
+
+// GetReplicaSets returns replicasets, optionally filtered by namespace ("" for all namespaces).
+func (a *App) GetReplicaSets(namespace string) ([]kube.ReplicaSetInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetReplicaSets(a.ctx, namespace)
+}
+
+// GetReplicaSetDetail returns detailed information about a single replicaset.
+func (a *App) GetReplicaSetDetail(namespace, name string) (*kube.ReplicaSetDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetReplicaSetDetail(a.ctx, namespace, name)
+}
+
+// GetReplicaSetEvents returns events related to a specific replicaset.
+func (a *App) GetReplicaSetEvents(namespace, name string) ([]kube.EventInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetReplicaSetEvents(a.ctx, namespace, name)
+}
+
+// GetJobs returns jobs, optionally filtered by namespace ("" for all namespaces).
+func (a *App) GetJobs(namespace string) ([]kube.JobInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetJobs(a.ctx, namespace)
+}
+
+// GetJobDetail returns detailed information about a single job.
+func (a *App) GetJobDetail(namespace, name string) (*kube.JobDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetJobDetail(a.ctx, namespace, name)
+}
+
+// GetJobEvents returns events related to a specific job.
+func (a *App) GetJobEvents(namespace, name string) ([]kube.EventInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetJobEvents(a.ctx, namespace, name)
+}
+
+// GetCronJobs returns cronjobs, optionally filtered by namespace ("" for all namespaces).
+func (a *App) GetCronJobs(namespace string) ([]kube.CronJobInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetCronJobs(a.ctx, namespace)
+}
+
+// GetCronJobDetail returns detailed information about a single cronjob.
+func (a *App) GetCronJobDetail(namespace, name string) (*kube.CronJobDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetCronJobDetail(a.ctx, namespace, name)
+}
+
+// GetCronJobEvents returns events related to a specific cronjob.
+func (a *App) GetCronJobEvents(namespace, name string) ([]kube.EventInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetCronJobEvents(a.ctx, namespace, name)
+}
+
+// GetServices returns services, optionally filtered by namespace ("" for all namespaces).
+func (a *App) GetServices(namespace string) ([]kube.ServiceInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetServices(a.ctx, namespace)
+}
+
+// GetServiceDetail returns detailed information about a single service.
+func (a *App) GetServiceDetail(namespace, name string) (*kube.ServiceDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetServiceDetail(a.ctx, namespace, name)
+}
+
+// GetServiceEvents returns events related to a specific service.
+func (a *App) GetServiceEvents(namespace, name string) ([]kube.EventInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetServiceEvents(a.ctx, namespace, name)
+}
+
+// GetIngresses returns ingresses, optionally filtered by namespace ("" for all namespaces).
+func (a *App) GetIngresses(namespace string) ([]kube.IngressInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetIngresses(a.ctx, namespace)
+}
+
+// GetIngressDetail returns detailed information about a single ingress.
+func (a *App) GetIngressDetail(namespace, name string) (*kube.IngressDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetIngressDetail(a.ctx, namespace, name)
+}
+
+// GetIngressEvents returns events related to a specific ingress.
+func (a *App) GetIngressEvents(namespace, name string) ([]kube.EventInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetIngressEvents(a.ctx, namespace, name)
+}
+
+// GetNetworkPolicies returns network policies, optionally filtered by namespace ("" for all namespaces).
+func (a *App) GetNetworkPolicies(namespace string) ([]kube.NetworkPolicyInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetNetworkPolicies(a.ctx, namespace)
+}
+
+// GetNetworkPolicyDetail returns detailed information about a single network policy.
+func (a *App) GetNetworkPolicyDetail(namespace, name string) (*kube.NetworkPolicyDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetNetworkPolicyDetail(a.ctx, namespace, name)
+}
+
+// GetConfigMaps returns config maps, optionally filtered by namespace ("" for all namespaces).
+func (a *App) GetConfigMaps(namespace string) ([]kube.ConfigMapInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetConfigMaps(a.ctx, namespace)
+}
+
+// GetConfigMapDetail returns detailed information about a single config map.
+func (a *App) GetConfigMapDetail(namespace, name string) (*kube.ConfigMapDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetConfigMapDetail(a.ctx, namespace, name)
+}
+
+// GetSecrets returns secrets, optionally filtered by namespace ("" for all namespaces).
+func (a *App) GetSecrets(namespace string) ([]kube.SecretInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetSecrets(a.ctx, namespace)
+}
+
+// GetSecretDetail returns detailed information about a single secret.
+func (a *App) GetSecretDetail(namespace, name string) (*kube.SecretDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetSecretDetail(a.ctx, namespace, name)
+}
+
+// GetPVCs returns persistent volume claims, optionally filtered by namespace ("" for all namespaces).
+func (a *App) GetPVCs(namespace string) ([]kube.PVCInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetPVCs(a.ctx, namespace)
+}
+
+// GetPVCDetail returns detailed information about a single persistent volume claim.
+func (a *App) GetPVCDetail(namespace, name string) (*kube.PVCDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetPVCDetail(a.ctx, namespace, name)
+}
+
+// GetPVCEvents returns events related to a specific persistent volume claim.
+func (a *App) GetPVCEvents(namespace, name string) ([]kube.EventInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetPVCEvents(a.ctx, namespace, name)
+}
+
+// GetServiceAccounts returns service accounts, optionally filtered by namespace ("" for all namespaces).
+func (a *App) GetServiceAccounts(namespace string) ([]kube.ServiceAccountInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetServiceAccounts(a.ctx, namespace)
+}
+
+// GetServiceAccountDetail returns detailed information about a single service account.
+func (a *App) GetServiceAccountDetail(namespace, name string) (*kube.ServiceAccountDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetServiceAccountDetail(a.ctx, namespace, name)
+}
+
+// GetRoles returns roles, optionally filtered by namespace ("" for all namespaces).
+func (a *App) GetRoles(namespace string) ([]kube.RoleInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetRoles(a.ctx, namespace)
+}
+
+// GetRoleDetail returns detailed information about a single role.
+func (a *App) GetRoleDetail(namespace, name string) (*kube.RoleDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetRoleDetail(a.ctx, namespace, name)
+}
+
+// GetClusterRoles returns all cluster roles in the connected cluster.
+func (a *App) GetClusterRoles() ([]kube.RoleInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetClusterRoles(a.ctx)
+}
+
+// GetClusterRoleDetail returns detailed information about a single cluster role.
+func (a *App) GetClusterRoleDetail(name string) (*kube.RoleDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetClusterRoleDetail(a.ctx, name)
+}
+
+// GetRoleBindings returns role bindings, optionally filtered by namespace ("" for all namespaces).
+func (a *App) GetRoleBindings(namespace string) ([]kube.RoleBindingInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetRoleBindings(a.ctx, namespace)
+}
+
+// GetRoleBindingDetail returns detailed information about a single role binding.
+func (a *App) GetRoleBindingDetail(namespace, name string) (*kube.RoleBindingDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetRoleBindingDetail(a.ctx, namespace, name)
+}
+
+// GetClusterRoleBindings returns all cluster role bindings in the connected cluster.
+func (a *App) GetClusterRoleBindings() ([]kube.RoleBindingInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetClusterRoleBindings(a.ctx)
+}
+
+// GetClusterRoleBindingDetail returns detailed information about a single cluster role binding.
+func (a *App) GetClusterRoleBindingDetail(name string) (*kube.RoleBindingDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetClusterRoleBindingDetail(a.ctx, name)
+}
+
+// GetStorageClasses returns all storage classes in the connected cluster.
+func (a *App) GetStorageClasses() ([]kube.StorageClassInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetStorageClasses(a.ctx)
+}
+
+// GetStorageClassDetail returns detailed information about a single storage class.
+func (a *App) GetStorageClassDetail(name string) (*kube.StorageClassDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetStorageClassDetail(a.ctx, name)
+}
+
+// GetPersistentVolumes returns all persistent volumes in the connected cluster.
+func (a *App) GetPersistentVolumes() ([]kube.PersistentVolumeInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetPersistentVolumes(a.ctx)
+}
+
+// GetPersistentVolumeDetail returns detailed information about a single persistent volume.
+func (a *App) GetPersistentVolumeDetail(name string) (*kube.PersistentVolumeDetail, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetPersistentVolumeDetail(a.ctx, name)
+}
+
+// GetPersistentVolumeEvents returns events related to a specific persistent volume.
+func (a *App) GetPersistentVolumeEvents(name string) ([]kube.EventInfo, error) {
+	if a.client == nil {
+		return nil, fmt.Errorf("not connected to a cluster")
+	}
+	return a.client.GetPersistentVolumeEvents(a.ctx, name)
 }
 
 // GetNodes returns all nodes in the connected cluster.

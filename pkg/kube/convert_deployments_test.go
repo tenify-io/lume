@@ -10,8 +10,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func int32Ptr(i int32) *int32 { return &i }
-
 func TestDeploymentToDeploymentInfo_FullyAvailable(t *testing.T) {
 	dep := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -20,7 +18,7 @@ func TestDeploymentToDeploymentInfo_FullyAvailable(t *testing.T) {
 			CreationTimestamp: metav1.NewTime(time.Now().Add(-2 * time.Hour)),
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: int32Ptr(3),
+			Replicas: ptrInt32(3),
 			Strategy: appsv1.DeploymentStrategy{
 				Type: appsv1.RollingUpdateDeploymentStrategyType,
 			},
@@ -82,7 +80,7 @@ func TestDeploymentToDeploymentInfo_Progressing(t *testing.T) {
 			CreationTimestamp: metav1.NewTime(time.Now().Add(-30 * 24 * time.Hour)),
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: int32Ptr(5),
+			Replicas: ptrInt32(5),
 			Strategy: appsv1.DeploymentStrategy{
 				Type: appsv1.RollingUpdateDeploymentStrategyType,
 			},
@@ -156,7 +154,7 @@ func TestDeploymentToDeploymentInfo_RecreateStrategy(t *testing.T) {
 			CreationTimestamp: metav1.NewTime(time.Now().Add(-5 * time.Minute)),
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: int32Ptr(2),
+			Replicas: ptrInt32(2),
 			Strategy: appsv1.DeploymentStrategy{
 				Type: appsv1.RecreateDeploymentStrategyType,
 			},
@@ -195,7 +193,7 @@ func TestConvertDeployment(t *testing.T) {
 			Namespace: "default",
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: int32Ptr(1),
+			Replicas: ptrInt32(1),
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
@@ -237,7 +235,7 @@ func TestDeploymentToDeploymentInfo_RollingUpdateParams(t *testing.T) {
 			CreationTimestamp: metav1.NewTime(time.Now().Add(-1 * time.Hour)),
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: int32Ptr(4),
+			Replicas: ptrInt32(4),
 			Strategy: appsv1.DeploymentStrategy{
 				Type: appsv1.RollingUpdateDeploymentStrategyType,
 				RollingUpdate: &appsv1.RollingUpdateDeployment{
