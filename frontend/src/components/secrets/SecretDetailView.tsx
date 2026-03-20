@@ -4,7 +4,8 @@ import { kube } from "../../../wailsjs/go/models";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { KeyValueList } from "@/components/shared/KeyValueList";
 import { ResourceDetailView } from "@/components/shared/ResourceDetailView";
-import { Eye, EyeOff, Copy, Check } from "lucide-react";
+import { ResourceToolbar, ToolbarAction } from "@/components/shared/ResourceToolbar";
+import { Eye, EyeOff, Copy, Check, Pencil, Trash2 } from "lucide-react";
 
 export function SecretDetailView({
   namespace,
@@ -15,6 +16,12 @@ export function SecretDetailView({
 }) {
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
   const [copied, setCopied] = useState<Record<string, boolean>>({});
+
+  const actions: ToolbarAction[] = [
+    { id: "edit", label: "Edit YAML", icon: Pencil, onClick: () => {}, group: "primary" },
+    { id: "copy", label: "Copy Name", icon: Copy, onClick: () => navigator.clipboard.writeText(name), group: "primary" },
+    { id: "delete", label: "Delete", icon: Trash2, onClick: () => {}, variant: "destructive" as const, group: "danger" },
+  ];
 
   const toggleReveal = (key: string) =>
     setRevealed((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -33,6 +40,7 @@ export function SecretDetailView({
 
   return (
     <ResourceDetailView<kube.SecretDetail>
+      toolbar={<ResourceToolbar actions={actions} />}
       namespace={namespace}
       name={name}
       fetchDetail={() => GetSecretDetail(namespace, name)}

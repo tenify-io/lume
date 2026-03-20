@@ -7,6 +7,8 @@ import { kube } from "../../../wailsjs/go/models";
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { KeyValueList } from "@/components/shared/KeyValueList";
+import { ResourceToolbar, ToolbarAction } from "@/components/shared/ResourceToolbar";
+import { Pencil, Trash2, Copy } from "lucide-react";
 import { useNavigation } from "@/navigation";
 
 interface RoleDetailViewProps {
@@ -64,14 +66,21 @@ export function RoleDetailView({
 
   if (!role) return null;
 
+  const actions: ToolbarAction[] = [
+    { id: "edit", label: "Edit YAML", icon: Pencil, onClick: () => {}, group: "primary" },
+    { id: "copy", label: "Copy Name", icon: Copy, onClick: () => navigator.clipboard.writeText(name), group: "primary" },
+    { id: "delete", label: "Delete", icon: Trash2, onClick: () => {}, variant: "destructive" as const, group: "danger" },
+  ];
+
   return (
     <div className="flex-1 overflow-auto min-h-0">
       <div className="px-6 py-5 flex flex-col gap-6">
-        {/* Back */}
-        <div>
+        {/* Back + Toolbar */}
+        <div className="flex items-center justify-between">
           <Button variant="ghost" size="sm" onClick={goBack}>
             &larr; Back
           </Button>
+          <ResourceToolbar actions={actions} />
         </div>
 
         {/* Role overview */}

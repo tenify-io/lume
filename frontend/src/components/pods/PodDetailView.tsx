@@ -8,6 +8,8 @@ import { KeyValueList } from "@/components/shared/KeyValueList";
 import { ConditionsTable } from "@/components/shared/ConditionsTable";
 import { EventsTable } from "@/components/shared/EventsTable";
 import { ResourceDetailView } from "@/components/shared/ResourceDetailView";
+import { ResourceToolbar, ToolbarAction } from "@/components/shared/ResourceToolbar";
+import { Pencil, Trash2, Copy, ScrollText, Terminal } from "lucide-react";
 
 function containerStateClass(state: string): string {
   if (state === "running") return "text-emerald-400";
@@ -212,6 +214,14 @@ export function PodDetailView({
   const hasResources = (r: kube.ContainerResource) =>
     r.cpuRequest || r.cpuLimit || r.memoryRequest || r.memoryLimit;
 
+  const actions: ToolbarAction[] = [
+    { id: "edit", label: "Edit YAML", icon: Pencil, onClick: () => {}, group: "primary" },
+    { id: "logs", label: "View Logs", icon: ScrollText, onClick: () => {}, group: "primary" },
+    { id: "exec", label: "Exec", icon: Terminal, onClick: () => {}, group: "primary" },
+    { id: "copy", label: "Copy Name", icon: Copy, onClick: () => navigator.clipboard.writeText(name), group: "primary" },
+    { id: "delete", label: "Delete", icon: Trash2, onClick: () => {}, variant: "destructive", group: "danger" },
+  ];
+
   return (
     <ResourceDetailView<kube.PodDetail>
       namespace={namespace}
@@ -220,6 +230,7 @@ export function PodDetailView({
       fetchEvents={() => GetPodEvents(namespace, name)}
       eventChannel="pods:changed"
       resourceLabel="pod"
+      toolbar={<ResourceToolbar actions={actions} />}
     >
       {(pod, events) => (
         <>

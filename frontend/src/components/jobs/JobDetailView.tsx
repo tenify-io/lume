@@ -9,6 +9,8 @@ import { KeyValueList } from "@/components/shared/KeyValueList";
 import { ConditionsTable } from "@/components/shared/ConditionsTable";
 import { EventsTable } from "@/components/shared/EventsTable";
 import { ResourceDetailView } from "@/components/shared/ResourceDetailView";
+import { ResourceToolbar, ToolbarAction } from "@/components/shared/ResourceToolbar";
+import { Pencil, Trash2, Copy } from "lucide-react";
 
 export function JobDetailView({
   namespace,
@@ -17,8 +19,15 @@ export function JobDetailView({
   namespace: string;
   name: string;
 }) {
+  const actions: ToolbarAction[] = [
+    { id: "edit", label: "Edit YAML", icon: Pencil, onClick: () => {}, group: "primary" },
+    { id: "copy", label: "Copy Name", icon: Copy, onClick: () => navigator.clipboard.writeText(name), group: "primary" },
+    { id: "delete", label: "Delete", icon: Trash2, onClick: () => {}, variant: "destructive" as const, group: "danger" },
+  ];
+
   return (
     <ResourceDetailView<kube.JobDetail>
+      toolbar={<ResourceToolbar actions={actions} />}
       namespace={namespace}
       name={name}
       fetchDetail={() => GetJobDetail(namespace, name)}

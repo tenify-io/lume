@@ -4,7 +4,8 @@ import { kube } from "../../../wailsjs/go/models";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { KeyValueList } from "@/components/shared/KeyValueList";
 import { ResourceDetailView } from "@/components/shared/ResourceDetailView";
-import { ChevronRight } from "lucide-react";
+import { ResourceToolbar, ToolbarAction } from "@/components/shared/ResourceToolbar";
+import { ChevronRight, Pencil, Trash2, Copy } from "lucide-react";
 
 export function ConfigMapDetailView({
   namespace,
@@ -14,6 +15,12 @@ export function ConfigMapDetailView({
   name: string;
 }) {
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
+
+  const actions: ToolbarAction[] = [
+    { id: "edit", label: "Edit YAML", icon: Pencil, onClick: () => {}, group: "primary" },
+    { id: "copy", label: "Copy Name", icon: Copy, onClick: () => navigator.clipboard.writeText(name), group: "primary" },
+    { id: "delete", label: "Delete", icon: Trash2, onClick: () => {}, variant: "destructive" as const, group: "danger" },
+  ];
 
   function toggleKey(key: string) {
     setExpandedKeys((prev) => {
@@ -29,6 +36,7 @@ export function ConfigMapDetailView({
 
   return (
     <ResourceDetailView<kube.ConfigMapDetail>
+      toolbar={<ResourceToolbar actions={actions} />}
       namespace={namespace}
       name={name}
       fetchDetail={() => GetConfigMapDetail(namespace, name)}

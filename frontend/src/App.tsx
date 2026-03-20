@@ -1,5 +1,6 @@
 import { NavigationProvider, useNavigation } from "@/navigation";
 import { ClusterProvider, useCluster } from "@/contexts/ClusterContext";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import ClusterSelectView from "@/components/ClusterSelectView";
 import { AppShell } from "@/components/AppShell";
 import { TopBar } from "@/components/TopBar";
@@ -171,7 +172,9 @@ function App() {
   return (
     <NavigationProvider>
       <ClusterProvider>
-        <AppRouter />
+        <TooltipProvider>
+          <AppRouter />
+        </TooltipProvider>
       </ClusterProvider>
     </NavigationProvider>
   );

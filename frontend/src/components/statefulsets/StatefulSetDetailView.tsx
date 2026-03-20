@@ -9,6 +9,8 @@ import { KeyValueList } from "@/components/shared/KeyValueList";
 import { ConditionsTable } from "@/components/shared/ConditionsTable";
 import { EventsTable } from "@/components/shared/EventsTable";
 import { ResourceDetailView } from "@/components/shared/ResourceDetailView";
+import { ResourceToolbar, ToolbarAction } from "@/components/shared/ResourceToolbar";
+import { Pencil, Trash2, Copy, Scaling, RotateCcw } from "lucide-react";
 
 function statefulSetStatus(ss: kube.StatefulSetDetail): string {
   const parts = ss.ready.split("/");
@@ -27,6 +29,14 @@ export function StatefulSetDetailView({
   namespace: string;
   name: string;
 }) {
+  const actions: ToolbarAction[] = [
+    { id: "edit", label: "Edit YAML", icon: Pencil, onClick: () => {}, group: "primary" },
+    { id: "scale", label: "Scale", icon: Scaling, onClick: () => {}, group: "primary" },
+    { id: "restart", label: "Restart", icon: RotateCcw, onClick: () => {}, group: "primary" },
+    { id: "copy", label: "Copy Name", icon: Copy, onClick: () => navigator.clipboard.writeText(name), group: "primary" },
+    { id: "delete", label: "Delete", icon: Trash2, onClick: () => {}, variant: "destructive", group: "danger" },
+  ];
+
   return (
     <ResourceDetailView<kube.StatefulSetDetail>
       namespace={namespace}
@@ -35,6 +45,7 @@ export function StatefulSetDetailView({
       fetchEvents={() => GetStatefulSetEvents(namespace, name)}
       eventChannel="statefulsets:changed"
       resourceLabel="statefulset"
+      toolbar={<ResourceToolbar actions={actions} />}
     >
       {(ss, events) => {
         const status = statefulSetStatus(ss);

@@ -11,6 +11,7 @@ export interface ResourceDetailViewProps<T> {
   fetchEvents?: () => Promise<kube.EventInfo[]>;
   eventChannel?: string;
   resourceLabel: string;
+  toolbar?: ReactNode;
   children: (detail: T, events: kube.EventInfo[]) => ReactNode;
 }
 
@@ -21,6 +22,7 @@ export function ResourceDetailView<T>({
   fetchEvents,
   eventChannel,
   resourceLabel,
+  toolbar,
   children,
 }: ResourceDetailViewProps<T>) {
   const { goBack } = useNavigation();
@@ -124,10 +126,11 @@ export function ResourceDetailView<T>({
   return (
     <div className="flex-1 overflow-auto min-h-0">
       <div className="px-6 py-5 flex flex-col gap-6">
-        <div>
+        <div className="flex items-center justify-between">
           <Button variant="ghost" size="sm" onClick={goBack}>
             &larr; Back
           </Button>
+          {toolbar}
         </div>
         {children(detail, events)}
       </div>
